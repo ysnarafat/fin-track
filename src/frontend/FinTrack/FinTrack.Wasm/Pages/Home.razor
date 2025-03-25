@@ -1,0 +1,18 @@
+﻿@page "/"
+
+<MudCard>
+    <MudCardHeader Title="Welcome to FinTrack" />
+    <MudCardContent>
+        <MudText Typo="Typo.h6">Track your expenses, loans, and lending with ease!</MudText>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SayHello">Get Started</MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code {
+    private void SayHello()
+    {
+        Console.WriteLine("Welcome to FinTrack!");
+    }
+}
