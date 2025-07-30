@@ -1,194 +1,124 @@
-# GitHub Actions Workflows
+# GitHub Actions Workflows (Linux Self-Hosted Runner)
 
-This directory contains GitHub Actions workflows for the FinTrack MAUI application CI/CD pipeline.
+Simple CI/CD workflows designed for Linux self-hosted runners.
 
-## Workflows Overview
+## Workflows
 
-### 1. Build and Test (`build-and-test.yml`)
+### 1. CI (`ci.yml`)
 **Triggers:** Push/PR to main/develop branches
-- Builds the entire solution
+
+**What it does:**
+- Builds core libraries (excludes MAUI project)
 - Runs unit and integration tests
 - Generates code coverage reports
-- Uploads test results and coverage artifacts
-- Comments on PRs with test results
+- Performs code quality checks
+- Comments on PRs with results
 
-### 2. Build Platforms (`build-platforms.yml`)
-**Triggers:** Push to main, PR to main, manual dispatch
-- Builds platform-specific versions (Android, Windows, iOS)
-- Can be triggered manually with platform selection
-- Uploads platform-specific build artifacts
-- Supports conditional building based on input parameters
+**Projects built:**
+- ✅ FinTrack.Core
+- ✅ FinTrack.Shared
+- ✅ FinTrack.Infrastructure
+- ✅ FinTrack.Tests.Unit
+- ✅ FinTrack.Tests.Integration
+- ❌ FinTrack.Maui (Linux limitation)
 
-### 3. Code Quality (`code-quality.yml`)
-**Triggers:** Push/PR to main/develop branches
-- Runs static code analysis
-- Checks code formatting with `dotnet format`
-- Performs security scanning
-- Checks for outdated packages
-- Comments on PRs with formatting issues
+### 2. Dependency Update (`dependency-update.yml`)
+**Triggers:** Weekly (Mondays 9 AM UTC) or manual
 
-### 4. Release (`release.yml`)
-**Triggers:** Git tags (v*), manual dispatch
-- Creates GitHub releases
-- Builds release versions for all platforms
-- Signs Android APKs (if configured)
-- Uploads release assets
-- Supports manual release creation
-
-### 5. Dependency Update (`dependency-update.yml`)
-**Triggers:** Weekly schedule (Mondays 9 AM UTC), manual dispatch
+**What it does:**
 - Checks for outdated NuGet packages
-- Updates packages automatically (minor/patch versions only)
-- Runs tests to ensure compatibility
-- Creates PRs with dependency updates
+- Updates minor/patch versions only (safe updates)
+- Tests all projects after updates
+- Creates PR with changes if updates found
 
-## Custom Runner Configuration
+## Linux Runner Setup
 
-These workflows are configured to run on `self-hosted` runners. Make sure your custom runner has:
-
-### Required Software
-- .NET 8.0 SDK
-- .NET MAUI workload
-- Java JDK 11+ (for Android builds)
-- Android SDK (for Android builds)
-- Git
-- 7-Zip (for Windows packaging)
-
-### Environment Variables
-Set these on your runner or in repository secrets:
-
-#### Android Signing (Optional)
+### Prerequisites
 ```bash
-ANDROID_KEYSTORE_FILE=<base64-encoded-keystore>
-ANDROID_KEYSTORE_PASSWORD=<keystore-password>
-ANDROID_KEY_ALIAS=<key-alias>
-ANDROID_KEY_PASSWORD=<key-password>
-```
-
-#### Android SDK
-```bash
-ANDROID_SDK_ROOT=<path-to-android-sdk>
-```
-
-### Runner Setup Commands
-```bash
-# Install .NET 8.0 SDK (REQUIRED - pre-install to avoid permission issues)
-# Download from https://dotnet.microsoft.com/download/dotnet/8.0
-# Or use your package manager:
-# Ubuntu/Debian: wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && sudo dpkg -i packages-microsoft-prod.deb && sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0
-# CentOS/RHEL: sudo dnf install dotnet-sdk-8.0
-
-# Install MAUI workload
-dotnet workload install maui
-
-# Install global tools
-dotnet tool install -g dotnet-format
-dotnet tool install -g dotnet-reportgenerator-globaltool
-dotnet tool install -g security-scan
-dotnet tool install -g dotnet-outdated-tool
-
-# For Android builds, install Android SDK
-# Follow instructions at: https://developer.android.com/studio#command-tools
+# Install .NET 8.0 SDK
+wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo apt-get update
+sudo apt-get install -y dotnet-sdk-8.0
 
 # Verify installation
 dotnet --version
-dotnet workload list
+dotnet --info
+
+# Test global tool installation (important for CI)
+dotnet tool install -g dotnet-format --version 5.1.250801
+dotnet tool uninstall -g dotnet-format
+echo "✅ Global tools work correctly"
 ```
 
-## Workflow Customization
+### Verify Setup
+Run the test workflow to verify your runner is properly configured:
+1. Go to Actions tab in GitHub
+2. Run "Test Setup" workflow manually
+3. Check that all tests pass
 
-### Modifying Build Targets
-Edit the `env` section in each workflow to change:
-- .NET version
-- Project paths
-- Build configurations
+### Global Tools (Auto-installed by workflows)
+- `dotnet-format` - Code formatting
+- `dotnet-reportgenerator-globaltool` - Coverage reports
+- `dotnet-outdated-tool` - Dependency updates
 
-### Adding New Platforms
-To add macOS or other platforms:
-1. Add a new job in `build-platforms.yml`
-2. Configure the appropriate target framework
-3. Add platform-specific build steps
+## What Works on Linux
 
-### Customizing Test Execution
-Modify test commands in `build-and-test.yml`:
-- Add test filters
-- Change test output formats
-- Configure additional test settings
+✅ **Fully Supported:**
+- Core business logic development
+- Unit and integration testing
+- Code coverage and quality checks
+- Dependency management
+- Static analysis
 
-### Security Configuration
-For production use, consider:
-- Using GitHub secrets for sensitive data
-- Implementing code signing for all platforms
-- Adding security scanning tools
-- Configuring branch protection rules
+❌ **Not Supported:**
+- MAUI project builds
+- Android/iOS/Windows app builds
+- Platform-specific testing
 
-## Artifacts and Reports
+## Usage
 
-### Generated Artifacts
-- **test-results**: Test execution results (TRX format)
-- **coverage-report**: Code coverage HTML reports
-- **dependency-report**: Outdated packages JSON report
-- **platform-builds**: Platform-specific build outputs
+### Running CI Locally
+```bash
+# Clean
+rm -rf src/frontend/*/bin src/frontend/*/obj
 
-### Artifact Retention
-- Test results: 30 days
-- Coverage reports: 30 days
-- Build artifacts: 30 days
-- Dependency reports: 30 days
+# Build core projects
+dotnet build src/frontend/FinTrack.Core/FinTrack.Core.csproj --configuration Release
+dotnet build src/frontend/FinTrack.Shared/FinTrack.Shared.csproj --configuration Release
+dotnet build src/frontend/FinTrack.Infrastructure/FinTrack.Infrastructure.csproj --configuration Release
 
-## Troubleshooting
+# Run tests
+dotnet test src/frontend/FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj --configuration Release
+dotnet test src/frontend/FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj --configuration Release
+```
 
-### Common Issues
+### Manual Dependency Updates
+```bash
+# Install tool
+dotnet tool install --global dotnet-outdated-tool
 
-#### .NET Installation Permission Issues
-If you see errors like "Permission denied" when installing .NET:
-- The workflows now use `dotnet-install-dir: ${{ runner.temp }}/dotnet` to install to a user directory
-- Alternatively, use the `build-and-test-simple.yml` workflow that assumes .NET is pre-installed
-- Pre-install .NET 8.0 SDK on your self-hosted runner to avoid installation issues
+# Check for updates
+cd src/frontend
+dotnet outdated
 
-#### Android Build Failures
-- Ensure Android SDK is properly installed
-- Check `ANDROID_SDK_ROOT` environment variable
-- Verify Java JDK version compatibility
+# Update (minor/patch only)
+dotnet outdated --upgrade --version-lock Major
+```
 
-#### iOS Build Issues
-- iOS builds require macOS runners
-- Xcode and iOS SDK must be installed
-- Apple Developer certificates needed for signing
+## Artifacts
 
-#### Test Failures
-- Check test project references
-- Ensure all dependencies are restored
-- Verify test database connections (for integration tests)
+- **test-results**: Test execution results and coverage
+- **outdated-packages-report**: Dependency update reports
 
-### Debug Steps
-1. Check workflow logs in GitHub Actions tab
-2. Verify runner configuration and installed software
-3. Test builds locally on the runner machine
-4. Check repository secrets and environment variables
+Retention: 30 days
 
-## Best Practices
+## Development Workflow
 
-### Branch Strategy
-- Use `main` for production releases
-- Use `develop` for integration testing
-- Create feature branches for new development
+1. **Develop** business logic in Core/Shared/Infrastructure
+2. **Test** with unit and integration tests
+3. **Push** to trigger CI
+4. **Review** PR comments and coverage reports
+5. **Merge** when CI passes
 
-### Pull Request Workflow
-1. Create feature branch
-2. Push changes (triggers build-and-test)
-3. Create PR (triggers all relevant workflows)
-4. Review code quality and test results
-5. Merge after approval
-
-### Release Process
-1. Create and push version tag (e.g., `v1.0.0`)
-2. Release workflow automatically triggers
-3. Review generated release assets
-4. Publish release when ready
-
-### Maintenance
-- Review dependency update PRs weekly
-- Monitor workflow execution times
-- Update runner software regularly
-- Review and update security configurations
+For MAUI/platform builds, you'll need separate Windows/macOS runners or local development.

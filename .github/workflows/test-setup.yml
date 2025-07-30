@@ -1,0 +1,70 @@
+name: Test Setup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-runner-setup:
+    runs-on: self-hosted
+    
+    steps:
+    - name: Test .NET availability
+      run: |
+        echo "=== Testing .NET Setup ==="
+        
+        # Check .NET installation
+        if command -v dotnet &> /dev/null; then
+          echo "✅ dotnet command available"
+          dotnet --version
+          dotnet --info
+        else
+          echo "❌ dotnet command not found"
+          echo "Please install .NET 8.0 SDK on your runner"
+          exit 1
+        fi
+        
+        # Check if we can install global tools
+        echo ""
+        echo "=== Testing Global Tool Installation ==="
+        
+        # Test installing a simple tool
+        if dotnet tool install -g dotnet-format --version 5.1.250801; then
+          echo "✅ Global tool installation works"
+          
+          # Check if tool is in PATH
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          if command -v dotnet-format &> /dev/null; then
+            echo "✅ Global tools are accessible"
+          else
+            echo "⚠️ Global tools installed but not in PATH"
+            echo "Tools location: $HOME/.dotnet/tools"
+          fi
+          
+          # Cleanup
+          dotnet tool uninstall -g dotnet-format
+        else
+          echo "❌ Global tool installation failed"
+          exit 1
+        fi
+        
+        echo ""
+        echo "=== Testing Project Access ==="
+        
+        # Check if we can access the project directory
+        if [ -d "src/frontend" ]; then
+          echo "✅ Project directory accessible"
+          ls -la src/frontend/
+        else
+          echo "❌ Project directory not found"
+          echo "Current directory: $(pwd)"
+          ls -la
+          exit 1
+        fi
+        
+        echo ""
+        echo "🎉 Runner setup test completed successfully!"
+        echo ""
+        echo "Your Linux runner is ready for:"
+        echo "- .NET 8.0 development"
+        echo "- Global tool installation"
+        echo "- Project building and testing"
