@@ -1,0 +1,160 @@
+name: Build Platforms
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/frontend/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/frontend/**'
+  workflow_dispatch:
+    inputs:
+      build_android:
+        description: 'Build Android'
+        required: false
+        default: true
+        type: boolean
+      build_windows:
+        description: 'Build Windows'
+        required: false
+        default: true
+        type: boolean
+      build_ios:
+        description: 'Build iOS'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  MAUI_PROJECT_PATH: 'src/frontend/FinTrack.Maui/FinTrack.Maui.csproj'
+
+jobs:
+  build-android:
+    if: ${{ github.event.inputs.build_android != 'false' }}
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install .NET MAUI workload
+      run: dotnet workload install maui
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'microsoft'
+        java-version: '11'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.MAUI_PROJECT_PATH }}
+
+    - name: Build Android
+      run: |
+        dotnet build ${{ env.MAUI_PROJECT_PATH }} \
+          -f net8.0-android \
+          -c Release \
+          -p:AndroidSdkDirectory=$ANDROID_SDK_ROOT
+
+    - name: Upload Android artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-build
+        path: |
+          src/frontend/FinTrack.Maui/bin/Release/net8.0-android/
+          !src/frontend/FinTrack.Maui/bin/Release/net8.0-android/obj/
+        retention-days: 30
+
+  build-windows:
+    if: ${{ github.event.inputs.build_windows != 'false' }}
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install .NET MAUI workload
+      run: dotnet workload install maui
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.MAUI_PROJECT_PATH }}
+
+    - name: Build Windows
+      run: |
+        dotnet build ${{ env.MAUI_PROJECT_PATH }} \
+          -f net8.0-windows10.0.19041.0 \
+          -c Release
+
+    - name: Upload Windows artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-build
+        path: |
+          src/frontend/FinTrack.Maui/bin/Release/net8.0-windows10.0.19041.0/
+          !src/frontend/FinTrack.Maui/bin/Release/net8.0-windows10.0.19041.0/obj/
+        retention-days: 30
+
+  build-ios:
+    if: ${{ github.event.inputs.build_ios == 'true' }}
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install .NET MAUI workload
+      run: dotnet workload install maui
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.MAUI_PROJECT_PATH }}
+
+    - name: Build iOS
+      run: |
+        dotnet build ${{ env.MAUI_PROJECT_PATH }} \
+          -f net8.0-ios \
+          -c Release
+
+    - name: Upload iOS artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-build
+        path: |
+          src/frontend/FinTrack.Maui/bin/Release/net8.0-ios/
+          !src/frontend/FinTrack.Maui/bin/Release/net8.0-ios/obj/
+        retention-days: 30

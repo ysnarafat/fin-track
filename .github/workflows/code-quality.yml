@@ -1,0 +1,137 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/frontend/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/frontend/**'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  SOLUTION_PATH: 'src/frontend/FinTrack.sln'
+
+jobs:
+  code-analysis:
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install .NET MAUI workload
+      run: dotnet workload install maui
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+    - name: Run code analysis
+      run: |
+        dotnet build ${{ env.SOLUTION_PATH }} \
+          --configuration Release \
+          --verbosity normal \
+          -p:TreatWarningsAsErrors=false \
+          -p:WarningsAsErrors="" \
+          -p:RunAnalyzersDuringBuild=true
+
+    - name: Install dotnet format
+      run: dotnet tool install -g dotnet-format
+
+    - name: Check code formatting
+      run: |
+        dotnet format ${{ env.SOLUTION_PATH }} \
+          --verify-no-changes \
+          --verbosity diagnostic
+
+    - name: Install security analysis tools
+      run: |
+        dotnet tool install --global security-scan
+        dotnet tool install --global dotnet-outdated-tool
+
+    - name: Run security scan
+      continue-on-error: true
+      run: security-scan ${{ env.SOLUTION_PATH }}
+
+    - name: Check for outdated packages
+      continue-on-error: true
+      run: |
+        cd src/frontend
+        dotnet outdated
+
+    - name: Generate dependency report
+      run: |
+        dotnet list ${{ env.SOLUTION_PATH }} package --outdated --format json > dependency-report.json
+
+    - name: Upload dependency report
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-report
+        path: dependency-report.json
+        retention-days: 30
+
+  lint-and-format:
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install dotnet format
+      run: dotnet tool install -g dotnet-format
+
+    - name: Check code formatting (dry run)
+      run: |
+        dotnet format ${{ env.SOLUTION_PATH }} \
+          --verify-no-changes \
+          --report format-report.json
+
+    - name: Upload format report
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: format-report
+        path: format-report.json
+        retention-days: 30
+
+    - name: Comment PR with formatting issues
+      if: failure() && github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const comment = `## 🎨 Code Formatting Issues
+          
+          ⚠️ Code formatting issues were found. Please run the following command to fix them:
+          
+          \`\`\`bash
+          dotnet format src/frontend/FinTrack.sln
+          \`\`\`
+          
+          Or use your IDE's format document feature.`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });

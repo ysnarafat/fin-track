@@ -1,0 +1,181 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+      create_release:
+        description: 'Create GitHub release'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  MAUI_PROJECT_PATH: 'src/frontend/FinTrack.Maui/FinTrack.Maui.csproj'
+
+jobs:
+  create-release:
+    runs-on: self-hosted
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Get version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release
+      id: create_release
+      if: ${{ github.event.inputs.create_release != 'false' }}
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        release_name: FinTrack ${{ steps.version.outputs.version }}
+        draft: false
+        prerelease: ${{ contains(steps.version.outputs.version, 'alpha') || contains(steps.version.outputs.version, 'beta') || contains(steps.version.outputs.version, 'rc') }}
+        body: |
+          ## What's Changed
+          
+          ### 🚀 Features
+          - New features and improvements
+          
+          ### 🐛 Bug Fixes
+          - Bug fixes and stability improvements
+          
+          ### 📱 Platform Support
+          - Android
+          - Windows
+          - iOS (if available)
+          
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/v1.0.0...${{ steps.version.outputs.version }}
+
+  build-android-release:
+    needs: create-release
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install .NET MAUI workload
+      run: dotnet workload install maui
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'microsoft'
+        java-version: '11'
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.MAUI_PROJECT_PATH }}
+
+    - name: Build Android Release
+      run: |
+        dotnet publish ${{ env.MAUI_PROJECT_PATH }} \
+          -f net8.0-android \
+          -c Release \
+          -p:AndroidSdkDirectory=$ANDROID_SDK_ROOT \
+          -p:ApplicationVersion=${{ needs.create-release.outputs.version }} \
+          -p:ApplicationDisplayVersion=${{ needs.create-release.outputs.version }}
+
+    - name: Sign Android APK
+      if: env.ANDROID_KEYSTORE_FILE != ''
+      env:
+        ANDROID_KEYSTORE_FILE: ${{ secrets.ANDROID_KEYSTORE_FILE }}
+        ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      run: |
+        # Add signing configuration here if needed
+        echo "APK signing would be configured here"
+
+    - name: Upload Android Release Asset
+      if: needs.create-release.outputs.upload_url != ''
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: src/frontend/FinTrack.Maui/bin/Release/net8.0-android/publish/com.fintrack.app-Signed.apk
+        asset_name: FinTrack-${{ needs.create-release.outputs.version }}-android.apk
+        asset_content_type: application/vnd.android.package-archive
+
+  build-windows-release:
+    needs: create-release
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install .NET MAUI workload
+      run: dotnet workload install maui
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.MAUI_PROJECT_PATH }}
+
+    - name: Build Windows Release
+      run: |
+        dotnet publish ${{ env.MAUI_PROJECT_PATH }} \
+          -f net8.0-windows10.0.19041.0 \
+          -c Release \
+          -p:ApplicationVersion=${{ needs.create-release.outputs.version }} \
+          -p:ApplicationDisplayVersion=${{ needs.create-release.outputs.version }} \
+          -p:GenerateAppxPackageOnBuild=true
+
+    - name: Create Windows installer
+      run: |
+        # Package the Windows build into a zip file
+        cd src/frontend/FinTrack.Maui/bin/Release/net8.0-windows10.0.19041.0/publish/
+        7z a -tzip FinTrack-${{ needs.create-release.outputs.version }}-windows.zip *
+
+    - name: Upload Windows Release Asset
+      if: needs.create-release.outputs.upload_url != ''
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: src/frontend/FinTrack.Maui/bin/Release/net8.0-windows10.0.19041.0/publish/FinTrack-${{ needs.create-release.outputs.version }}-windows.zip
+        asset_name: FinTrack-${{ needs.create-release.outputs.version }}-windows.zip
+        asset_content_type: application/zip
+
+  notify-completion:
+    needs: [create-release, build-android-release, build-windows-release]
+    runs-on: self-hosted
+    if: always()
+    
+    steps:
+    - name: Notify release completion
+      run: |
+        echo "Release ${{ needs.create-release.outputs.version }} completed!"
+        echo "Android build: ${{ needs.build-android-release.result }}"
+        echo "Windows build: ${{ needs.build-windows-release.result }}"
