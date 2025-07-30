@@ -35,20 +35,17 @@ Simple CI/CD workflows designed for Linux self-hosted runners.
 
 ### Prerequisites
 ```bash
-# Install .NET 8.0 SDK
-wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb
-sudo apt-get update
-sudo apt-get install -y dotnet-sdk-8.0
-
+# Your runner already has .NET 9.0.3 installed - perfect!
 # Verify installation
-dotnet --version
+dotnet --version  # Should show 9.0.3
 dotnet --info
 
 # Test global tool installation (important for CI)
 dotnet tool install -g dotnet-format --version 5.1.250801
 dotnet tool uninstall -g dotnet-format
 echo "✅ Global tools work correctly"
+
+# Note: Projects have been updated to target .NET 9.0 to match your runner
 ```
 
 ### Verify Setup
@@ -83,7 +80,7 @@ Run the test workflow to verify your runner is properly configured:
 # Clean
 rm -rf src/frontend/*/bin src/frontend/*/obj
 
-# Build core projects
+# Build core projects (now targeting .NET 9.0)
 dotnet build src/frontend/FinTrack.Core/FinTrack.Core.csproj --configuration Release
 dotnet build src/frontend/FinTrack.Shared/FinTrack.Shared.csproj --configuration Release
 dotnet build src/frontend/FinTrack.Infrastructure/FinTrack.Infrastructure.csproj --configuration Release

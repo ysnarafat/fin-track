@@ -14,6 +14,7 @@ on:
 
 env:
   # Only build projects that work on Linux (exclude MAUI)
+  # All projects target .NET 9.0 to match runner installation
   CORE_PROJECT: 'src/frontend/FinTrack.Core/FinTrack.Core.csproj'
   SHARED_PROJECT: 'src/frontend/FinTrack.Shared/FinTrack.Shared.csproj'
   INFRASTRUCTURE_PROJECT: 'src/frontend/FinTrack.Infrastructure/FinTrack.Infrastructure.csproj'
