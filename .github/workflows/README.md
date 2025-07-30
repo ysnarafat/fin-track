@@ -72,8 +72,11 @@ ANDROID_SDK_ROOT=<path-to-android-sdk>
 
 ### Runner Setup Commands
 ```bash
-# Install .NET 8.0 SDK
+# Install .NET 8.0 SDK (REQUIRED - pre-install to avoid permission issues)
 # Download from https://dotnet.microsoft.com/download/dotnet/8.0
+# Or use your package manager:
+# Ubuntu/Debian: wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && sudo dpkg -i packages-microsoft-prod.deb && sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0
+# CentOS/RHEL: sudo dnf install dotnet-sdk-8.0
 
 # Install MAUI workload
 dotnet workload install maui
@@ -86,6 +89,10 @@ dotnet tool install -g dotnet-outdated-tool
 
 # For Android builds, install Android SDK
 # Follow instructions at: https://developer.android.com/studio#command-tools
+
+# Verify installation
+dotnet --version
+dotnet workload list
 ```
 
 ## Workflow Customization
@@ -132,6 +139,12 @@ For production use, consider:
 ## Troubleshooting
 
 ### Common Issues
+
+#### .NET Installation Permission Issues
+If you see errors like "Permission denied" when installing .NET:
+- The workflows now use `dotnet-install-dir: ${{ runner.temp }}/dotnet` to install to a user directory
+- Alternatively, use the `build-and-test-simple.yml` workflow that assumes .NET is pre-installed
+- Pre-install .NET 8.0 SDK on your self-hosted runner to avoid installation issues
 
 #### Android Build Failures
 - Ensure Android SDK is properly installed

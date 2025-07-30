@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Test (Simple)
 
 on:
   push:
@@ -13,7 +13,6 @@ on:
       - '.github/workflows/**'
 
 env:
-  DOTNET_VERSION: '8.0.x'
   SOLUTION_PATH: 'src/frontend/FinTrack.sln'
   MAUI_PROJECT_PATH: 'src/frontend/FinTrack.Maui/FinTrack.Maui.csproj'
   UNIT_TEST_PROJECT: 'src/frontend/FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj'
@@ -29,19 +28,20 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-        dotnet-install-dir: ${{ runner.temp }}/dotnet
-      env:
-        DOTNET_INSTALL_DIR: ${{ runner.temp }}/dotnet
+    - name: Verify .NET installation
+      run: |
+        dotnet --version
+        dotnet --list-sdks
+        dotnet workload list
 
-    - name: Add .NET to PATH
-      run: echo "${{ runner.temp }}/dotnet" >> $GITHUB_PATH
-
-    - name: Install .NET MAUI workload
-      run: dotnet workload install maui
+    - name: Install .NET MAUI workload (if not present)
+      run: |
+        if ! dotnet workload list | grep -q "maui"; then
+          echo "Installing MAUI workload..."
+          dotnet workload install maui
+        else
+          echo "MAUI workload already installed"
+        fi
 
     - name: Cache NuGet packages
       uses: actions/cache@v4
@@ -50,6 +50,11 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
+
+    - name: Clean previous builds
+      run: |
+        dotnet clean ${{ env.SOLUTION_PATH }} --configuration Release
+        rm -rf src/frontend/*/bin src/frontend/*/obj
 
     - name: Restore dependencies
       run: dotnet restore ${{ env.SOLUTION_PATH }}
@@ -88,7 +93,11 @@ jobs:
     - name: Generate code coverage report
       if: always()
       run: |
-        dotnet tool install -g dotnet-reportgenerator-globaltool
+        # Install reportgenerator if not present
+        if ! command -v reportgenerator &> /dev/null; then
+          dotnet tool install -g dotnet-reportgenerator-globaltool
+        fi
+        
         reportgenerator \
           -reports:"TestResults/**/coverage.cobertura.xml" \
           -targetdir:"TestResults/CoverageReport" \

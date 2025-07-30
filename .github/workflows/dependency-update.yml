@@ -24,6 +24,9 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+        dotnet-install-dir: ${{ runner.temp }}/dotnet
+      env:
+        DOTNET_INSTALL_DIR: ${{ runner.temp }}/dotnet
 
     - name: Install .NET MAUI workload
       run: dotnet workload install maui
