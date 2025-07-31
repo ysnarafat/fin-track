@@ -1,39 +1,100 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-	<div class="container-fluid">
-		<a class="navbar-brand" href="">FinTrack.Maui</a>
-		<button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-	</div>
-</div>
+﻿@inject NavigationManager Navigation
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-	<nav class="flex-column">
-		<div class="nav-item px-3">
-			<NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-				<span class="oi oi-home" aria-hidden="true"></span> Home
-			</NavLink>
-		</div>
-		<div class="nav-item px-3">
-			<NavLink class="nav-link" href="counter">
-				<span class="oi oi-plus" aria-hidden="true"></span> Counter
-			</NavLink>
-		</div>
-		<div class="nav-item px-3">
-			<NavLink class="nav-link" href="fetchdata">
-				<span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-			</NavLink>
-		</div>
-	</nav>
-</div>
+<MudNavMenu>
+    <!-- User Profile Section -->
+    <div class="pa-4 d-flex align-center">
+        <MudAvatar Color="Color.Primary" Size="Size.Medium">
+            <MudIcon Icon="Icons.Material.Filled.Person" />
+        </MudAvatar>
+        <div class="ml-3 d-none d-sm-block">
+            <MudText Typo="Typo.subtitle1">Welcome</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">User</MudText>
+        </div>
+    </div>
+    
+    <MudDivider Class="mb-2" />
+    
+    <!-- Main Navigation Items -->
+    <MudNavLink Href="/" 
+                Match="NavLinkMatch.All" 
+                Icon="Icons.Material.Filled.Dashboard">
+        Dashboard
+    </MudNavLink>
+    
+    <MudNavLink Href="/accounts" 
+                Icon="Icons.Material.Filled.AccountBalance">
+        Accounts
+    </MudNavLink>
+    
+    <MudNavLink Href="/transactions" 
+                Icon="Icons.Material.Filled.Receipt">
+        Transactions
+    </MudNavLink>
+    
+    <MudNavLink Href="/budgets" 
+                Icon="Icons.Material.Filled.PieChart">
+        Budgets
+    </MudNavLink>
+    
+    <MudNavLink Href="/reports" 
+                Icon="Icons.Material.Filled.Assessment">
+        Reports
+    </MudNavLink>
+    
+    <MudNavLink Href="/goals" 
+                Icon="Icons.Material.Filled.TrendingUp">
+        Goals
+    </MudNavLink>
+    
+    <MudDivider Class="my-2" />
+    
+    <!-- Secondary Navigation -->
+    <MudNavGroup Title="Settings" 
+                 Icon="Icons.Material.Filled.Settings" 
+                 Expanded="false">
+        <MudNavLink Href="/settings/profile" 
+                    Icon="Icons.Material.Filled.Person">
+            Profile
+        </MudNavLink>
+        <MudNavLink Href="/settings/preferences" 
+                    Icon="Icons.Material.Filled.Tune">
+            Preferences
+        </MudNavLink>
+        <MudNavLink Href="/settings/security" 
+                    Icon="Icons.Material.Filled.Security">
+            Security
+        </MudNavLink>
+    </MudNavGroup>
+    
+    <MudNavLink Href="/help" 
+                Icon="Icons.Material.Filled.Help">
+        Help & Support
+    </MudNavLink>
+    
+    <!-- Development/Debug Links (will be removed in production) -->
+    @if (IsDebugMode)
+    {
+        <MudDivider Class="my-2" />
+        <MudNavGroup Title="Debug" 
+                     Icon="Icons.Material.Filled.BugReport" 
+                     Expanded="false">
+            <MudNavLink Href="/counter" 
+                        Icon="Icons.Material.Filled.Add">
+                Counter
+            </MudNavLink>
+            <MudNavLink Href="/fetchdata" 
+                        Icon="Icons.Material.Filled.CloudDownload">
+                Fetch Data
+            </MudNavLink>
+        </MudNavGroup>
+    }
+</MudNavMenu>
 
 @code {
-	private bool collapseNavMenu = true;
-
-	private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-	private void ToggleNavMenu()
-	{
-		collapseNavMenu = !collapseNavMenu;
-	}
+    private bool IsDebugMode => 
+#if DEBUG
+        true;
+#else
+        false;
+#endif
 }
