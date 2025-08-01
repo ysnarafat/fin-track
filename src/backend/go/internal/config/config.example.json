@@ -1,0 +1,4 @@
+{
+    "port": "8080",
+    "database_url": "postgres://postgres:{password}@{server-ip}:{port}/{db-name}"
+}
