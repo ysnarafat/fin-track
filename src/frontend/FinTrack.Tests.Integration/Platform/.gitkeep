@@ -1,0 +1,2 @@
+# This file ensures the Platform directory is tracked by git
+# Integration tests for platform-specific services will be placed here

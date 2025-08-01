@@ -1,0 +1,2 @@
+# This file ensures the Database directory is tracked by git
+# Integration tests for database operations will be placed here

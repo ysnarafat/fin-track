@@ -1,0 +1,171 @@
+name: Dependency Update
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+env:
+  # All projects target .NET 9.0 to match runner installation
+  CORE_PROJECT: 'src/frontend/FinTrack.Core/FinTrack.Core.csproj'
+  SHARED_PROJECT: 'src/frontend/FinTrack.Shared/FinTrack.Shared.csproj'
+  INFRASTRUCTURE_PROJECT: 'src/frontend/FinTrack.Infrastructure/FinTrack.Infrastructure.csproj'
+  UNIT_TEST_PROJECT: 'src/frontend/FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj'
+  INTEGRATION_TEST_PROJECT: 'src/frontend/FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj'
+
+jobs:
+  update-dependencies:
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Verify .NET installation
+      run: |
+        echo "Checking .NET installation..."
+        dotnet --version
+        dotnet --info
+        echo "✅ .NET is available"
+
+    - name: Setup PATH for dotnet tools
+      run: |
+        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+        export PATH="$PATH:$HOME/.dotnet/tools"
+
+    - name: Install dotnet-outdated
+      run: |
+        if ! command -v dotnet-outdated &> /dev/null; then
+          echo "Installing dotnet-outdated-tool..."
+          dotnet tool install --global dotnet-outdated-tool
+          export PATH="$PATH:$HOME/.dotnet/tools"
+        fi
+        echo "✅ dotnet-outdated is available"
+
+    - name: Check for outdated packages
+      id: outdated
+      run: |
+        cd src/frontend
+        
+        # Check each project individually
+        echo "Checking Core project..."
+        dotnet outdated FinTrack.Core/FinTrack.Core.csproj --output json > core-outdated.json
+        
+        echo "Checking Shared project..."
+        dotnet outdated FinTrack.Shared/FinTrack.Shared.csproj --output json > shared-outdated.json
+        
+        echo "Checking Infrastructure project..."
+        dotnet outdated FinTrack.Infrastructure/FinTrack.Infrastructure.csproj --output json > infrastructure-outdated.json
+        
+        echo "Checking Unit Test project..."
+        dotnet outdated FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj --output json > unit-test-outdated.json
+        
+        echo "Checking Integration Test project..."
+        dotnet outdated FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj --output json > integration-test-outdated.json
+        
+        # Check if any files have updates
+        has_updates=false
+        for file in *-outdated.json; do
+          if [ -s "$file" ] && [ "$(cat "$file")" != "[]" ]; then
+            has_updates=true
+            break
+          fi
+        done
+        
+        echo "has_updates=$has_updates" >> $GITHUB_OUTPUT
+
+    - name: Update packages
+      if: steps.outdated.outputs.has_updates == 'true'
+      run: |
+        cd src/frontend
+        
+        # Update only minor and patch versions (safer)
+        echo "Updating Core project..."
+        dotnet outdated FinTrack.Core/FinTrack.Core.csproj --upgrade --version-lock Major
+        
+        echo "Updating Shared project..."
+        dotnet outdated FinTrack.Shared/FinTrack.Shared.csproj --upgrade --version-lock Major
+        
+        echo "Updating Infrastructure project..."
+        dotnet outdated FinTrack.Infrastructure/FinTrack.Infrastructure.csproj --upgrade --version-lock Major
+        
+        echo "Updating Unit Test project..."
+        dotnet outdated FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj --upgrade --version-lock Major
+        
+        echo "Updating Integration Test project..."
+        dotnet outdated FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj --upgrade --version-lock Major
+
+    - name: Test after updates
+      if: steps.outdated.outputs.has_updates == 'true'
+      run: |
+        # Clean and restore
+        rm -rf src/frontend/*/bin src/frontend/*/obj
+        
+        # Restore all projects
+        dotnet restore ${{ env.CORE_PROJECT }}
+        dotnet restore ${{ env.SHARED_PROJECT }}
+        dotnet restore ${{ env.INFRASTRUCTURE_PROJECT }}
+        dotnet restore ${{ env.UNIT_TEST_PROJECT }}
+        dotnet restore ${{ env.INTEGRATION_TEST_PROJECT }}
+        
+        # Build all projects
+        dotnet build ${{ env.CORE_PROJECT }} --configuration Release --no-restore
+        dotnet build ${{ env.SHARED_PROJECT }} --configuration Release --no-restore
+        dotnet build ${{ env.INFRASTRUCTURE_PROJECT }} --configuration Release --no-restore
+        dotnet build ${{ env.UNIT_TEST_PROJECT }} --configuration Release --no-restore
+        dotnet build ${{ env.INTEGRATION_TEST_PROJECT }} --configuration Release --no-restore
+        
+        # Run tests
+        dotnet test ${{ env.UNIT_TEST_PROJECT }} --configuration Release --no-build
+        dotnet test ${{ env.INTEGRATION_TEST_PROJECT }} --configuration Release --no-build
+
+    - name: Create Pull Request
+      if: steps.outdated.outputs.has_updates == 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'chore: update NuGet packages'
+        title: 'chore: Update NuGet packages'
+        body: |
+          ## 📦 Dependency Updates
+          
+          This PR contains automatic updates to NuGet packages for core libraries.
+          
+          ### Updated Projects
+          - ✅ FinTrack.Core
+          - ✅ FinTrack.Shared
+          - ✅ FinTrack.Infrastructure
+          - ✅ FinTrack.Tests.Unit
+          - ✅ FinTrack.Tests.Integration
+          
+          ### Safety Measures
+          - Only minor and patch version updates (no major version changes)
+          - All builds successful
+          - All tests passing
+          
+          ### Verification
+          - ✅ Build successful
+          - ✅ Unit tests passing
+          - ✅ Integration tests passing
+          
+          ℹ️ **Note:** MAUI project excluded (Linux runner limitation)
+          
+          ---
+          *This PR was created automatically by the dependency update workflow.*
+        branch: chore/update-dependencies
+        delete-branch: true
+        labels: |
+          dependencies
+          automated
+        draft: false
+
+    - name: Upload outdated reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: outdated-packages-report
+        path: src/frontend/*-outdated.json
+        retention-days: 30

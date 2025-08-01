@@ -1,0 +1,155 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/frontend/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/frontend/**'
+      - '.github/workflows/**'
+
+env:
+  # Only build projects that work on Linux (exclude MAUI)
+  # All projects target .NET 9.0 to match runner installation
+  CORE_PROJECT: 'src/frontend/FinTrack.Core/FinTrack.Core.csproj'
+  SHARED_PROJECT: 'src/frontend/FinTrack.Shared/FinTrack.Shared.csproj'
+  INFRASTRUCTURE_PROJECT: 'src/frontend/FinTrack.Infrastructure/FinTrack.Infrastructure.csproj'
+  UNIT_TEST_PROJECT: 'src/frontend/FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj'
+  INTEGRATION_TEST_PROJECT: 'src/frontend/FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj'
+
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Verify .NET installation
+      run: |
+        echo "Checking .NET installation..."
+        dotnet --version
+        dotnet --info
+        echo "✅ .NET is available"
+
+    - name: Setup PATH for dotnet tools
+      run: |
+        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+        export PATH="$PATH:$HOME/.dotnet/tools"
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Clean
+      run: rm -rf src/frontend/*/bin src/frontend/*/obj
+
+    - name: Check project files exist
+      run: |
+        echo "Checking if project files exist..."
+        ls -la ${{ env.CORE_PROJECT }}
+        ls -la ${{ env.SHARED_PROJECT }}
+        ls -la ${{ env.INFRASTRUCTURE_PROJECT }}
+        ls -la ${{ env.UNIT_TEST_PROJECT }}
+        ls -la ${{ env.INTEGRATION_TEST_PROJECT }}
+        echo "✅ All project files found"
+
+    - name: Restore Core
+      run: dotnet restore ${{ env.CORE_PROJECT }}
+
+    - name: Build Core
+      run: dotnet build ${{ env.CORE_PROJECT }} --configuration Release --no-restore
+
+    - name: Restore Shared
+      run: dotnet restore ${{ env.SHARED_PROJECT }}
+
+    - name: Build Shared
+      run: dotnet build ${{ env.SHARED_PROJECT }} --configuration Release --no-restore
+
+    - name: Restore Infrastructure
+      run: dotnet restore ${{ env.INFRASTRUCTURE_PROJECT }}
+
+    - name: Build Infrastructure
+      run: dotnet build ${{ env.INFRASTRUCTURE_PROJECT }} --configuration Release --no-restore
+
+    - name: Restore Tests
+      run: |
+        dotnet restore ${{ env.UNIT_TEST_PROJECT }}
+        dotnet restore ${{ env.INTEGRATION_TEST_PROJECT }}
+
+    - name: Build Tests
+      run: |
+        dotnet build ${{ env.UNIT_TEST_PROJECT }} --configuration Release --no-restore
+        dotnet build ${{ env.INTEGRATION_TEST_PROJECT }} --configuration Release --no-restore
+
+    - name: Run Unit Tests
+      run: |
+        dotnet test ${{ env.UNIT_TEST_PROJECT }} \
+          --configuration Release \
+          --no-build \
+          --verbosity normal \
+          --logger trx \
+          --results-directory TestResults \
+          --collect:"XPlat Code Coverage"
+
+    - name: Run Integration Tests
+      run: |
+        dotnet test ${{ env.INTEGRATION_TEST_PROJECT }} \
+          --configuration Release \
+          --no-build \
+          --verbosity normal \
+          --logger trx \
+          --results-directory TestResults \
+          --collect:"XPlat Code Coverage"
+
+    - name: Generate Coverage Report
+      if: always()
+      run: |
+        # Install reportgenerator if not available
+        if ! command -v reportgenerator &> /dev/null; then
+          echo "Installing reportgenerator..."
+          dotnet tool install -g dotnet-reportgenerator-globaltool
+          export PATH="$PATH:$HOME/.dotnet/tools"
+        fi
+        
+        # Check if coverage files exist
+        if ls TestResults/**/coverage.cobertura.xml 1> /dev/null 2>&1; then
+          reportgenerator \
+            -reports:"TestResults/**/coverage.cobertura.xml" \
+            -targetdir:"TestResults/CoverageReport" \
+            -reporttypes:"Html;Cobertura"
+          echo "✅ Coverage report generated"
+        else
+          echo "⚠️ No coverage files found, skipping report generation"
+        fi
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: TestResults/
+        retention-days: 30
+
+    - name: Code Quality Check
+      continue-on-error: true
+      run: |
+        # Install dotnet-format if not available
+        if ! command -v dotnet-format &> /dev/null; then
+          echo "Installing dotnet-format..."
+          dotnet tool install -g dotnet-format
+          export PATH="$PATH:$HOME/.dotnet/tools"
+        fi
+        
+        echo "Checking code formatting..."
+        dotnet format ${{ env.CORE_PROJECT }} --verify-no-changes --verbosity minimal || echo "⚠️ Core project formatting issues"
+        dotnet format ${{ env.SHARED_PROJECT }} --verify-no-changes --verbosity minimal || echo "⚠️ Shared project formatting issues"
+        dotnet format ${{ env.INFRASTRUCTURE_PROJECT }} --verify-no-changes --verbosity minimal || echo "⚠️ Infrastructure project formatting issues"

@@ -1,0 +1,2 @@
+# This file ensures the Sync directory is tracked by git
+# Integration tests for synchronization functionality will be placed here
