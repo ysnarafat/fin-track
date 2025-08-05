@@ -1,111 +1,177 @@
 ﻿@page "/"
+@using FinTrack.Maui.Models
+@using FinTrack.Maui.Components.Dashboard
+@using FinTrack.Core.Entities
+@using FinTrack.Core.Enums
+
+#nullable enable
 
 <PageTitle>Dashboard - FinTrack</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large">
-    <MudText Typo="Typo.h4" GutterBottom="true">Dashboard</MudText>
-    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
-        Welcome to FinTrack! Your financial overview will appear here.
-    </MudText>
-    
-    <MudGrid>
+<MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
+    <MudStack Spacing="4">
+        <!-- Header -->
+        <div>
+            <MudText Typo="Typo.h4" GutterBottom="true">Dashboard</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">
+                Welcome to FinTrack! Here's your financial overview.
+            </MudText>
+        </div>
+        
         <!-- Summary Cards -->
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="2">
-                <MudText Typo="Typo.h6" Color="Color.Primary">Total Balance</MudText>
-                <MudText Typo="Typo.h4">$0.00</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">Across all accounts</MudText>
-            </MudPaper>
-        </MudItem>
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="3">
+                <DashboardSummaryCard Title="Total Balance"
+                                    Value="@dashboardData.TotalBalance"
+                                    Subtitle="Across all accounts"
+                                    TitleColor="Color.Primary"
+                                    ShowTrend="true"
+                                    TrendValue="@dashboardData.Trends.BalanceTrend" />
+            </MudItem>
+            
+            <MudItem xs="12" sm="6" md="3">
+                <DashboardSummaryCard Title="Monthly Income"
+                                    Value="@dashboardData.MonthlyIncome"
+                                    Subtitle="This month"
+                                    TitleColor="Color.Success"
+                                    ShowTrend="true"
+                                    TrendValue="@dashboardData.Trends.IncomeTrend" />
+            </MudItem>
+            
+            <MudItem xs="12" sm="6" md="3">
+                <DashboardSummaryCard Title="Monthly Expenses"
+                                    Value="@dashboardData.MonthlyExpenses"
+                                    Subtitle="This month"
+                                    TitleColor="Color.Error"
+                                    ShowTrend="true"
+                                    TrendValue="@dashboardData.Trends.ExpenseTrend" />
+            </MudItem>
+            
+            <MudItem xs="12" sm="6" md="3">
+                <DashboardSummaryCard Title="Savings Rate"
+                                    Value="@(dashboardData.SavingsRate * 100)"
+                                    Subtitle="This month"
+                                    TitleColor="Color.Info"
+                                    ShowTrend="true"
+                                    TrendValue="@dashboardData.Trends.SavingsRateTrend" />
+            </MudItem>
+        </MudGrid>
         
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="2">
-                <MudText Typo="Typo.h6" Color="Color.Success">Monthly Income</MudText>
-                <MudText Typo="Typo.h4">$0.00</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">This month</MudText>
-            </MudPaper>
-        </MudItem>
+        <!-- Main Content -->
+        <MudGrid>
+            <!-- Recent Transactions -->
+            <MudItem xs="12" md="8">
+                <RecentTransactionsWidget Transactions="@dashboardData.RecentTransactions" 
+                                        MaxItems="5" />
+            </MudItem>
+            
+            <!-- Quick Actions -->
+            <MudItem xs="12" md="4">
+                <QuickActionsPanel />
+            </MudItem>
+        </MudGrid>
         
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="2">
-                <MudText Typo="Typo.h6" Color="Color.Error">Monthly Expenses</MudText>
-                <MudText Typo="Typo.h4">$0.00</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">This month</MudText>
-            </MudPaper>
-        </MudItem>
-        
-        <MudItem xs="12" sm="6" md="3">
-            <MudPaper Class="pa-4" Elevation="2">
-                <MudText Typo="Typo.h6" Color="Color.Info">Savings Rate</MudText>
-                <MudText Typo="Typo.h4">0%</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">This month</MudText>
-            </MudPaper>
-        </MudItem>
-        
-        <!-- Recent Transactions -->
-        <MudItem xs="12" md="8">
-            <MudPaper Class="pa-4" Elevation="2">
-                <MudText Typo="Typo.h6" GutterBottom="true">Recent Transactions</MudText>
-                <MudList T="string">
-                    <MudListItem T="string">
-                        <MudText Typo="Typo.body1">No transactions yet</MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Secondary">Start by adding your first transaction</MudText>
-                    </MudListItem>
-                </MudList>
-                <MudButton Variant="Variant.Text" 
-                           Color="Color.Primary" 
-                           StartIcon="Icons.Material.Filled.Add"
-                           Href="/transactions">
-                    Add Transaction
-                </MudButton>
-            </MudPaper>
-        </MudItem>
-        
-        <!-- Quick Actions -->
-        <MudItem xs="12" md="4">
-            <MudPaper Class="pa-4" Elevation="2">
-                <MudText Typo="Typo.h6" GutterBottom="true">Quick Actions</MudText>
-                <MudStack Spacing="2">
-                    <MudButton Variant="Variant.Outlined" 
-                               Color="Color.Primary" 
-                               StartIcon="Icons.Material.Filled.AccountBalance"
-                               FullWidth="true"
-                               Href="/accounts">
-                        Add Account
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined" 
-                               Color="Color.Secondary" 
-                               StartIcon="Icons.Material.Filled.Receipt"
-                               FullWidth="true"
-                               Href="/transactions">
-                        Record Transaction
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined" 
-                               Color="Color.Tertiary" 
-                               StartIcon="Icons.Material.Filled.PieChart"
-                               FullWidth="true"
-                               Href="/budgets">
-                        Create Budget
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined" 
-                               Color="Color.Success" 
-                               StartIcon="Icons.Material.Filled.TrendingUp"
-                               FullWidth="true"
-                               Href="/goals">
-                        Set Goal
-                    </MudButton>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-        
-        <!-- Getting Started -->
-        <MudItem xs="12">
-            <MudAlert Severity="Severity.Info" Class="mt-4">
+        <!-- Getting Started Alert (only show when no data) -->
+        @if (dashboardData.AccountCount == 0)
+        {
+            <MudAlert Severity="Severity.Info" Class="mt-2">
                 <MudText Typo="Typo.body1">
                     <strong>Welcome to FinTrack!</strong> This is your financial dashboard. 
                     Start by adding your accounts and recording transactions to see your financial overview.
                 </MudText>
             </MudAlert>
-        </MudItem>
-    </MudGrid>
+        }
+    </MudStack>
 </MudContainer>
+
+@code {
+    private DashboardData dashboardData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardDataAsync();
+    }
+
+    private Task LoadDashboardDataAsync()
+    {
+        // TODO: Replace with actual data service calls
+        // For now, using mock data to demonstrate the UI components
+        
+        dashboardData = new DashboardData
+        {
+            TotalBalance = 5247.83m,
+            MonthlyIncome = 4500.00m,
+            MonthlyExpenses = 3200.45m,
+            AccountCount = 3,
+            RecentTransactions = GetMockTransactions(),
+            Trends = new DashboardTrends
+            {
+                BalanceTrend = 0.08m, // 8% increase
+                IncomeTrend = 0.05m,  // 5% increase
+                ExpenseTrend = -0.02m, // 2% decrease
+                SavingsRateTrend = 0.12m // 12% increase
+            }
+        };
+        
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private IEnumerable<Transaction> GetMockTransactions()
+    {
+        // Mock data for demonstration - replace with actual service call
+        return new List<Transaction>
+        {
+            new Transaction
+            {
+                Id = 1,
+                Description = "Salary Deposit",
+                Amount = 4500.00m,
+                Date = DateTime.Today.AddDays(-1),
+                Type = TransactionType.Income,
+                Category = new Category { Name = "Salary" },
+                Account = new Account { Name = "Checking" }
+            },
+            new Transaction
+            {
+                Id = 2,
+                Description = "Grocery Shopping",
+                Amount = 127.45m,
+                Date = DateTime.Today.AddDays(-2),
+                Type = TransactionType.Expense,
+                Category = new Category { Name = "Groceries" },
+                Account = new Account { Name = "Checking" }
+            },
+            new Transaction
+            {
+                Id = 3,
+                Description = "Gas Station",
+                Amount = 45.20m,
+                Date = DateTime.Today.AddDays(-3),
+                Type = TransactionType.Expense,
+                Category = new Category { Name = "Transportation" },
+                Account = new Account { Name = "Credit Card" }
+            },
+            new Transaction
+            {
+                Id = 4,
+                Description = "Transfer to Savings",
+                Amount = 500.00m,
+                Date = DateTime.Today.AddDays(-4),
+                Type = TransactionType.Transfer,
+                Category = new Category { Name = "Transfer" },
+                Account = new Account { Name = "Checking" }
+            },
+            new Transaction
+            {
+                Id = 5,
+                Description = "Coffee Shop",
+                Amount = 4.75m,
+                Date = DateTime.Today.AddDays(-5),
+                Type = TransactionType.Expense,
+                Category = new Category { Name = "Dining" },
+                Account = new Account { Name = "Credit Card" }
+            }
+        };
+    }
+}
