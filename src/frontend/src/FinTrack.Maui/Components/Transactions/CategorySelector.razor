@@ -1,0 +1,262 @@
+@using FinTrack.Core.Entities
+
+<MudAutocomplete T="Category" 
+                @bind-Value="SelectedCategory"
+                SearchFunc="@SearchCategories"
+                ToStringFunc="@(c => c?.Name ?? "")"
+                Label="Category" 
+                Variant="Variant.Outlined"
+                Required="@Required"
+                Placeholder="Search or select a category..."
+                ShowProgressIndicator="@IsSearching"
+                MaxItems="20"
+                Dense="@Dense"
+                Clearable="true"
+                ResetValueOnEmptyText="true"
+                CoerceText="false"
+                CoerceValue="false">
+    <ItemTemplate Context="category">
+        <div class="d-flex align-center">
+            @if (!string.IsNullOrEmpty(category.Icon))
+            {
+                <MudIcon Icon="@GetCategoryIcon(category.Icon)" 
+                        Style="@($"color: {category.Color ?? "#6B7280"}")" 
+                        Class="mr-2" 
+                        Size="Size.Small" />
+            }
+            else
+            {
+                <MudIcon Icon="Icons.Material.Filled.Category" 
+                        Style="@($"color: {category.Color ?? "#6B7280"}")" 
+                        Class="mr-2" 
+                        Size="Size.Small" />
+            }
+            <div class="flex-grow-1">
+                <MudText Typo="Typo.body2">@category.Name</MudText>
+                @if (category.ParentCategory != null)
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        @category.ParentCategory.Name
+                    </MudText>
+                }
+            </div>
+            @if (category.BudgetLimit.HasValue)
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Info" Class="ml-2">
+                    Budget: @category.BudgetLimit.Value.ToString("C")
+                </MudChip>
+            }
+        </div>
+    </ItemTemplate>
+    <ItemSelectedTemplate Context="category">
+        <div class="d-flex align-center">
+            @if (!string.IsNullOrEmpty(category.Icon))
+            {
+                <MudIcon Icon="@GetCategoryIcon(category.Icon)" 
+                        Style="@($"color: {category.Color ?? "#6B7280"}")" 
+                        Class="mr-2" 
+                        Size="Size.Small" />
+            }
+            else
+            {
+                <MudIcon Icon="Icons.Material.Filled.Category" 
+                        Style="@($"color: {category.Color ?? "#6B7280"}")" 
+                        Class="mr-2" 
+                        Size="Size.Small" />
+            }
+            @category.Name
+        </div>
+    </ItemSelectedTemplate>
+    <NoItemsTemplate>
+        <div class="pa-4 text-center">
+            <MudIcon Icon="Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Secondary" />
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2">
+                No categories found matching "@_currentSearchString"
+            </MudText>
+            @if (AllowCreateNew && !string.IsNullOrWhiteSpace(_currentSearchString))
+            {
+                <MudButton Variant="Variant.Text" 
+                          Color="Color.Primary" 
+                          StartIcon="Icons.Material.Filled.Add"
+                          OnClick="@(() => CreateNewCategory(_currentSearchString))"
+                          Class="mt-2">
+                    Create "@_currentSearchString"
+                </MudButton>
+            }
+        </div>
+    </NoItemsTemplate>
+</MudAutocomplete>
+
+@if (ShowCategoryGrid && Categories != null && Categories.Any())
+{
+    <MudExpansionPanels Class="mt-2" Elevation="0">
+        <MudExpansionPanel Text="Browse Categories" Icon="Icons.Material.Filled.GridView">
+            <div class="category-grid pa-2">
+                @foreach (var category in GetTopLevelCategories())
+                {
+                    <MudButton Variant="@(SelectedCategoryId == category.Id ? Variant.Filled : Variant.Outlined)"
+                              Color="@(SelectedCategoryId == category.Id ? Color.Primary : Color.Default)"
+                              Size="Size.Small"
+                              Class="ma-1 category-chip"
+                              OnClick="@(() => SelectCategory(category))">
+                        @if (!string.IsNullOrEmpty(category.Icon))
+                        {
+                            <MudIcon Icon="@GetCategoryIcon(category.Icon)" 
+                                    Style="@($"color: {category.Color ?? "#6B7280"}")" 
+                                    Size="Size.Small" 
+                                    Class="mr-1" />
+                        }
+                        @category.Name
+                    </MudButton>
+                }
+            </div>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+}
+
+<style>
+    .category-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .category-chip {
+        border-radius: 16px !important;
+        min-height: 32px;
+        font-size: 0.75rem;
+        margin: 2px;
+    }
+    
+    @@media (max-width: 600px) {
+        .category-chip {
+            font-size: 0.7rem;
+            min-height: 28px;
+            margin: 1px;
+        }
+        
+        .category-grid {
+            gap: 2px;
+        }
+    }
+    
+    @@media (max-width: 480px) {
+        .category-chip {
+            font-size: 0.65rem;
+            min-height: 24px;
+            padding: 0 8px;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public List<Category>? Categories { get; set; }
+    [Parameter] public int SelectedCategoryId { get; set; }
+    [Parameter] public EventCallback<int> SelectedCategoryIdChanged { get; set; }
+    [Parameter] public bool Required { get; set; } = false;
+    [Parameter] public bool Dense { get; set; } = false;
+    [Parameter] public bool ShowCategoryGrid { get; set; } = true;
+    [Parameter] public bool AllowCreateNew { get; set; } = false;
+    [Parameter] public EventCallback<string> OnCreateNewCategory { get; set; }
+
+    private Category? SelectedCategory
+    {
+        get => Categories?.FirstOrDefault(c => c.Id == SelectedCategoryId);
+        set
+        {
+            if (value != null)
+            {
+                SelectedCategoryId = value.Id;
+                SelectedCategoryIdChanged.InvokeAsync(SelectedCategoryId);
+            }
+            else
+            {
+                SelectedCategoryId = 0;
+                SelectedCategoryIdChanged.InvokeAsync(0);
+            }
+        }
+    }
+
+    private bool IsSearching = false;
+    private string _currentSearchString = string.Empty;
+
+    private async Task<IEnumerable<Category>> SearchCategories(string value, CancellationToken cancellationToken)
+    {
+        _currentSearchString = value ?? string.Empty;
+        
+        if (Categories == null || !Categories.Any())
+            return Array.Empty<Category>();
+
+        IsSearching = true;
+        await Task.Delay(100, cancellationToken); // Simulate search delay
+        IsSearching = false;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return Categories.Where(c => c.IsActive && !c.IsDeleted)
+                           .OrderBy(c => c.Name)
+                           .Take(10);
+        }
+
+        return Categories.Where(c => c.IsActive && 
+                                   !c.IsDeleted && 
+                                   (c.Name.Contains(value, StringComparison.OrdinalIgnoreCase) ||
+                                    c.Description?.Contains(value, StringComparison.OrdinalIgnoreCase) == true))
+                        .OrderBy(c => c.Name.StartsWith(value, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                        .ThenBy(c => c.Name);
+    }
+
+    private void SelectCategory(Category category)
+    {
+        SelectedCategory = category;
+    }
+
+    private async Task CreateNewCategory(string categoryName)
+    {
+        if (OnCreateNewCategory.HasDelegate)
+        {
+            await OnCreateNewCategory.InvokeAsync(categoryName);
+        }
+    }
+
+    private IEnumerable<Category> GetTopLevelCategories()
+    {
+        if (Categories == null) return Array.Empty<Category>();
+        
+        return Categories.Where(c => c.IsActive && 
+                                   !c.IsDeleted && 
+                                   c.ParentCategoryId == null)
+                        .OrderBy(c => c.SortOrder)
+                        .ThenBy(c => c.Name)
+                        .Take(12); // Limit to prevent UI overflow
+    }
+
+    private string GetCategoryIcon(string? iconName)
+    {
+        if (string.IsNullOrEmpty(iconName))
+            return Icons.Material.Filled.Category;
+
+        // Map common category icons
+        return iconName.ToLower() switch
+        {
+            "food" or "restaurant" => Icons.Material.Filled.Restaurant,
+            "gas" or "fuel" => Icons.Material.Filled.LocalGasStation,
+            "shopping" or "store" => Icons.Material.Filled.ShoppingCart,
+            "entertainment" => Icons.Material.Filled.Movie,
+            "health" or "medical" => Icons.Material.Filled.LocalHospital,
+            "transport" or "car" => Icons.Material.Filled.DirectionsCar,
+            "home" or "house" => Icons.Material.Filled.Home,
+            "utilities" => Icons.Material.Filled.ElectricBolt,
+            "education" => Icons.Material.Filled.School,
+            "salary" or "income" => Icons.Material.Filled.AccountBalance,
+            "investment" => Icons.Material.Filled.TrendingUp,
+            "gift" => Icons.Material.Filled.CardGiftcard,
+            "travel" => Icons.Material.Filled.Flight,
+            "insurance" => Icons.Material.Filled.Security,
+            "phone" => Icons.Material.Filled.Phone,
+            "internet" => Icons.Material.Filled.Wifi,
+            "subscription" => Icons.Material.Filled.Subscriptions,
+            _ => Icons.Material.Filled.Category
+        };
+    }
+}

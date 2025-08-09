@@ -1,0 +1,470 @@
+@using FinTrack.Core.Entities
+@using FinTrack.Core.Enums
+@using static FinTrack.Maui.Components.Transactions.TransactionListView
+
+<MudExpansionPanels Elevation="0" Class="filter-panels">
+    <!-- Date Range Filter -->
+    <MudExpansionPanel Text="Date Range" Icon="Icons.Material.Filled.DateRange">
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker @bind-Date="FilterState.StartDate"
+                              Label="From Date"
+                              Variant="Variant.Outlined"
+                              Clearable="true"
+                              MaxDate="DateTime.Today" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker @bind-Date="FilterState.EndDate"
+                              Label="To Date"
+                              Variant="Variant.Outlined"
+                              Clearable="true"
+                              MaxDate="DateTime.Today"
+                              MinDate="FilterState.StartDate" />
+            </MudItem>
+            <MudItem xs="12">
+                <div class="d-flex gap-2 flex-wrap">
+                    <MudButton Variant="Variant.Outlined" 
+                              Size="Size.Small" 
+                              OnClick="@(() => SetDateRange(DateRangePreset.Today))"
+                              Color="@(IsDateRangeSelected(DateRangePreset.Today) ? Color.Primary : Color.Default)">
+                        Today
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                              Size="Size.Small" 
+                              OnClick="@(() => SetDateRange(DateRangePreset.ThisWeek))"
+                              Color="@(IsDateRangeSelected(DateRangePreset.ThisWeek) ? Color.Primary : Color.Default)">
+                        This Week
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                              Size="Size.Small" 
+                              OnClick="@(() => SetDateRange(DateRangePreset.ThisMonth))"
+                              Color="@(IsDateRangeSelected(DateRangePreset.ThisMonth) ? Color.Primary : Color.Default)">
+                        This Month
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                              Size="Size.Small" 
+                              OnClick="@(() => SetDateRange(DateRangePreset.LastMonth))"
+                              Color="@(IsDateRangeSelected(DateRangePreset.LastMonth) ? Color.Primary : Color.Default)">
+                        Last Month
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                              Size="Size.Small" 
+                              OnClick="@(() => SetDateRange(DateRangePreset.Last30Days))"
+                              Color="@(IsDateRangeSelected(DateRangePreset.Last30Days) ? Color.Primary : Color.Default)">
+                        Last 30 Days
+                    </MudButton>
+                </div>
+            </MudItem>
+        </MudGrid>
+    </MudExpansionPanel>
+
+    <!-- Transaction Type Filter -->
+    <MudExpansionPanel Text="Transaction Type" Icon="Icons.Material.Filled.Category">
+        <div class="d-flex gap-2 flex-wrap">
+            @foreach (var type in Enum.GetValues<TransactionType>())
+            {
+                <MudChip T="string" 
+                        Text="@type.ToString()" 
+                        Color="@GetTransactionTypeColor(type)"
+                        Variant="@(FilterState.SelectedTypes.Contains(type) ? Variant.Filled : Variant.Outlined)"
+                        OnClick="@(() => ToggleTransactionType(type))"
+                        Icon="@GetTransactionTypeIcon(type)"
+                        Class="cursor-pointer">
+                    @type
+                </MudChip>
+            }
+        </div>
+    </MudExpansionPanel>
+
+    <!-- Account Filter -->
+    @if (Accounts != null && Accounts.Any())
+    {
+        <MudExpansionPanel Text="Accounts" Icon="Icons.Material.Filled.AccountBalance">
+            <div class="d-flex gap-2 flex-wrap">
+                @foreach (var account in Accounts.Where(a => a.IsActive))
+                {
+                    <MudChip T="string" 
+                            Text="@account.Name" 
+                            Color="@GetAccountTypeColor(account.Type)"
+                            Variant="@(FilterState.SelectedAccountIds.Contains(account.Id) ? Variant.Filled : Variant.Outlined)"
+                            OnClick="@(() => ToggleAccount(account.Id))"
+                            Class="cursor-pointer">
+                        @account.Name
+                    </MudChip>
+                }
+            </div>
+        </MudExpansionPanel>
+    }
+
+    <!-- Category Filter -->
+    @if (Categories != null && Categories.Any())
+    {
+        <MudExpansionPanel Text="Categories" Icon="Icons.Material.Filled.Label">
+            <div class="d-flex gap-2 flex-wrap">
+                @foreach (var category in Categories.Where(c => c.IsActive && !c.IsDeleted).OrderBy(c => c.Name))
+                {
+                    <MudChip T="string" 
+                            Text="@category.Name" 
+                            Style="@GetCategoryChipStyle(category)"
+                            Variant="@(FilterState.SelectedCategoryIds.Contains(category.Id) ? Variant.Filled : Variant.Outlined)"
+                            OnClick="@(() => ToggleCategory(category.Id))"
+                            Class="cursor-pointer">
+                        @if (!string.IsNullOrEmpty(category.Icon))
+                        {
+                            <MudIcon Icon="@GetCategoryIcon(category.Icon)" Size="Size.Small" Class="mr-1" />
+                        }
+                        @category.Name
+                    </MudChip>
+                }
+            </div>
+        </MudExpansionPanel>
+    }
+
+    <!-- Amount Range Filter -->
+    <MudExpansionPanel Text="Amount Range" Icon="Icons.Material.Filled.AttachMoney">
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudNumericField T="decimal?" 
+                                @bind-Value="FilterState.MinAmount"
+                                Label="Minimum Amount"
+                                Variant="Variant.Outlined"
+                                Min="0"
+                                Step="0.01m"
+                                Format="C2"
+                                Clearable="true"
+                                Adornment="Adornment.Start"
+                                AdornmentIcon="Icons.Material.Filled.AttachMoney" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField T="decimal?" 
+                                @bind-Value="FilterState.MaxAmount"
+                                Label="Maximum Amount"
+                                Variant="Variant.Outlined"
+                                Min="FilterState.MinAmount ?? 0"
+                                Step="0.01m"
+                                Format="C2"
+                                Clearable="true"
+                                Adornment="Adornment.Start"
+                                AdornmentIcon="Icons.Material.Filled.AttachMoney" />
+            </MudItem>
+        </MudGrid>
+    </MudExpansionPanel>
+
+    <!-- Status Filter -->
+    <MudExpansionPanel Text="Status" Icon="Icons.Material.Filled.CheckCircle">
+        <div class="d-flex gap-2">
+            <MudChip T="string" 
+                    Text="All" 
+                    Color="Color.Default"
+                    Variant="@(!FilterState.IsReconciled.HasValue ? Variant.Filled : Variant.Outlined)"
+                    OnClick="@(() => SetReconciledFilter(null))"
+                    Class="cursor-pointer">
+                All
+            </MudChip>
+            <MudChip T="string" 
+                    Text="Reconciled" 
+                    Color="Color.Success"
+                    Variant="@(FilterState.IsReconciled == true ? Variant.Filled : Variant.Outlined)"
+                    OnClick="@(() => SetReconciledFilter(true))"
+                    Icon="Icons.Material.Filled.CheckCircle"
+                    Class="cursor-pointer">
+                Reconciled
+            </MudChip>
+            <MudChip T="string" 
+                    Text="Pending" 
+                    Color="Color.Warning"
+                    Variant="@(FilterState.IsReconciled == false ? Variant.Filled : Variant.Outlined)"
+                    OnClick="@(() => SetReconciledFilter(false))"
+                    Icon="Icons.Material.Filled.Schedule"
+                    Class="cursor-pointer">
+                Pending
+            </MudChip>
+        </div>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+@if (FilterState.HasFiltersApplied)
+{
+    <div class="d-flex justify-space-between align-center mt-3">
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            @GetFilterSummary()
+        </MudText>
+        <MudButton Variant="Variant.Text" 
+                  Color="Color.Primary" 
+                  StartIcon="Icons.Material.Filled.Clear"
+                  OnClick="ClearAllFilters"
+                  Size="Size.Small">
+            Clear All
+        </MudButton>
+    </div>
+}
+
+<style>
+    .filter-panels .mud-expand-panel {
+        margin-bottom: 8px;
+    }
+    
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    
+    .mud-chip {
+        margin: 2px;
+    }
+    
+    @@media (max-width: 600px) {
+        .filter-panels .mud-expand-panel .mud-expand-panel-header {
+            padding: 12px 16px;
+        }
+        
+        .mud-chip {
+            margin: 1px;
+            font-size: 0.75rem;
+        }
+        
+        .d-flex.gap-2 {
+            gap: 4px !important;
+        }
+    }
+    
+    @@media (max-width: 480px) {
+        .mud-chip {
+            font-size: 0.7rem;
+            padding: 0 8px;
+            height: 24px;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public TransactionFilterState FilterState { get; set; } = new();
+    [Parameter] public EventCallback<TransactionFilterState> FilterStateChanged { get; set; }
+    [Parameter] public List<Account>? Accounts { get; set; }
+    [Parameter] public List<Category>? Categories { get; set; }
+    [Parameter] public EventCallback OnFiltersChanged { get; set; }
+
+    private bool HasDateFilters => FilterState.StartDate.HasValue || FilterState.EndDate.HasValue;
+    private bool HasTypeFilters => FilterState.SelectedTypes.Any();
+    private bool HasAccountFilters => FilterState.SelectedAccountIds.Any();
+    private bool HasCategoryFilters => FilterState.SelectedCategoryIds.Any();
+    private bool HasAmountFilters => FilterState.MinAmount.HasValue || FilterState.MaxAmount.HasValue;
+    private bool HasStatusFilters => FilterState.IsReconciled.HasValue;
+
+    private enum DateRangePreset
+    {
+        Today,
+        ThisWeek,
+        ThisMonth,
+        LastMonth,
+        Last30Days
+    }
+
+    private async Task NotifyFiltersChanged()
+    {
+        await FilterStateChanged.InvokeAsync(FilterState);
+        await OnFiltersChanged.InvokeAsync();
+    }
+
+    private async Task SetDateRange(DateRangePreset preset)
+    {
+        var today = DateTime.Today;
+        
+        switch (preset)
+        {
+            case DateRangePreset.Today:
+                FilterState.StartDate = today;
+                FilterState.EndDate = today;
+                break;
+            case DateRangePreset.ThisWeek:
+                FilterState.StartDate = today.AddDays(-(int)today.DayOfWeek);
+                FilterState.EndDate = today.AddDays(6 - (int)today.DayOfWeek);
+                break;
+            case DateRangePreset.ThisMonth:
+                FilterState.StartDate = new DateTime(today.Year, today.Month, 1);
+                FilterState.EndDate = new DateTime(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month));
+                break;
+            case DateRangePreset.LastMonth:
+                FilterState.StartDate = new DateTime(today.Year, today.Month, 1).AddMonths(-1);
+                FilterState.EndDate = new DateTime(today.Year, today.Month, 1).AddDays(-1);
+                break;
+            case DateRangePreset.Last30Days:
+                FilterState.StartDate = today.AddDays(-30);
+                FilterState.EndDate = today;
+                break;
+            default:
+                FilterState.StartDate = null;
+                FilterState.EndDate = null;
+                break;
+        }
+        
+        await NotifyFiltersChanged();
+    }
+
+    private bool IsDateRangeSelected(DateRangePreset preset)
+    {
+        if (!FilterState.StartDate.HasValue || !FilterState.EndDate.HasValue)
+            return false;
+
+        var today = DateTime.Today;
+        var (start, end) = preset switch
+        {
+            DateRangePreset.Today => (today, today),
+            DateRangePreset.ThisWeek => (today.AddDays(-(int)today.DayOfWeek), today.AddDays(6 - (int)today.DayOfWeek)),
+            DateRangePreset.ThisMonth => (new DateTime(today.Year, today.Month, 1), new DateTime(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month))),
+            DateRangePreset.LastMonth => (new DateTime(today.Year, today.Month, 1).AddMonths(-1), new DateTime(today.Year, today.Month, 1).AddDays(-1)),
+            DateRangePreset.Last30Days => (today.AddDays(-30), today),
+            _ => ((DateTime?)null, (DateTime?)null)
+        };
+
+        return FilterState.StartDate.Value.Date == start && FilterState.EndDate.Value.Date == end;
+    }
+
+    private async Task ToggleTransactionType(TransactionType type)
+    {
+        if (FilterState.SelectedTypes.Contains(type))
+            FilterState.SelectedTypes.Remove(type);
+        else
+            FilterState.SelectedTypes.Add(type);
+        
+        await NotifyFiltersChanged();
+    }
+
+    private async Task ToggleAccount(int accountId)
+    {
+        if (FilterState.SelectedAccountIds.Contains(accountId))
+            FilterState.SelectedAccountIds.Remove(accountId);
+        else
+            FilterState.SelectedAccountIds.Add(accountId);
+        
+        await NotifyFiltersChanged();
+    }
+
+    private async Task ToggleCategory(int categoryId)
+    {
+        if (FilterState.SelectedCategoryIds.Contains(categoryId))
+            FilterState.SelectedCategoryIds.Remove(categoryId);
+        else
+            FilterState.SelectedCategoryIds.Add(categoryId);
+        
+        await NotifyFiltersChanged();
+    }
+
+    private async Task SetReconciledFilter(bool? isReconciled)
+    {
+        FilterState.IsReconciled = isReconciled;
+        await NotifyFiltersChanged();
+    }
+
+    private async Task ClearAllFilters()
+    {
+        FilterState = new TransactionFilterState();
+        await NotifyFiltersChanged();
+    }
+
+    private string GetFilterSummary()
+    {
+        var parts = new List<string>();
+
+        if (HasDateFilters)
+        {
+            if (FilterState.StartDate.HasValue && FilterState.EndDate.HasValue)
+                parts.Add($"Date: {FilterState.StartDate.Value:MMM dd} - {FilterState.EndDate.Value:MMM dd}");
+            else if (FilterState.StartDate.HasValue)
+                parts.Add($"From: {FilterState.StartDate.Value:MMM dd, yyyy}");
+            else if (FilterState.EndDate.HasValue)
+                parts.Add($"Until: {FilterState.EndDate.Value:MMM dd, yyyy}");
+        }
+
+        if (HasTypeFilters)
+            parts.Add($"Types: {string.Join(", ", FilterState.SelectedTypes.Select(t => t.ToString()).ToArray())}");
+
+        if (HasAccountFilters)
+            parts.Add($"Accounts: {FilterState.SelectedAccountIds.Count} selected");
+
+        if (HasCategoryFilters)
+            parts.Add($"Categories: {FilterState.SelectedCategoryIds.Count} selected");
+
+        if (HasAmountFilters)
+        {
+            if (FilterState.MinAmount.HasValue && FilterState.MaxAmount.HasValue)
+                parts.Add($"Amount: {FilterState.MinAmount:C} - {FilterState.MaxAmount:C}");
+            else if (FilterState.MinAmount.HasValue)
+                parts.Add($"Min: {FilterState.MinAmount:C}");
+            else if (FilterState.MaxAmount.HasValue)
+                parts.Add($"Max: {FilterState.MaxAmount:C}");
+        }
+
+        if (HasStatusFilters)
+            parts.Add($"Status: {(FilterState.IsReconciled == true ? "Reconciled" : "Pending")}");
+
+        return parts.Any() ? string.Join(" • ", parts.ToArray()) : "No filters applied";
+    }
+
+    private Color GetTransactionTypeColor(TransactionType type)
+    {
+        return type switch
+        {
+            TransactionType.Income => Color.Success,
+            TransactionType.Expense => Color.Error,
+            TransactionType.Transfer => Color.Info,
+            _ => Color.Default
+        };
+    }
+
+    private string GetTransactionTypeIcon(TransactionType type)
+    {
+        return type switch
+        {
+            TransactionType.Income => Icons.Material.Filled.TrendingUp,
+            TransactionType.Expense => Icons.Material.Filled.TrendingDown,
+            TransactionType.Transfer => Icons.Material.Filled.SwapHoriz,
+            _ => Icons.Material.Filled.Receipt
+        };
+    }
+
+    private Color GetAccountTypeColor(AccountType accountType)
+    {
+        return accountType switch
+        {
+            AccountType.Checking => Color.Primary,
+            AccountType.Savings => Color.Success,
+            AccountType.CreditCard => Color.Warning,
+            AccountType.Investment => Color.Info,
+            _ => Color.Default
+        };
+    }
+
+    private string GetCategoryChipStyle(Category category)
+    {
+        var color = category.Color ?? "#6B7280";
+        return $"background-color: {color}20; color: {color}; border-color: {color}";
+    }
+
+    private string GetCategoryIcon(string? iconName)
+    {
+        if (string.IsNullOrEmpty(iconName))
+            return Icons.Material.Filled.Category;
+
+        return iconName.ToLower() switch
+        {
+            "food" or "restaurant" => Icons.Material.Filled.Restaurant,
+            "gas" or "fuel" => Icons.Material.Filled.LocalGasStation,
+            "shopping" or "store" => Icons.Material.Filled.ShoppingCart,
+            "entertainment" => Icons.Material.Filled.Movie,
+            "health" or "medical" => Icons.Material.Filled.LocalHospital,
+            "transport" or "car" => Icons.Material.Filled.DirectionsCar,
+            "home" or "house" => Icons.Material.Filled.Home,
+            "utilities" => Icons.Material.Filled.ElectricBolt,
+            "education" => Icons.Material.Filled.School,
+            "salary" or "income" => Icons.Material.Filled.AccountBalance,
+            "investment" => Icons.Material.Filled.TrendingUp,
+            "gift" => Icons.Material.Filled.CardGiftcard,
+            "travel" => Icons.Material.Filled.Flight,
+            "insurance" => Icons.Material.Filled.Security,
+            "phone" => Icons.Material.Filled.Phone,
+            "internet" => Icons.Material.Filled.Wifi,
+            "subscription" => Icons.Material.Filled.Subscriptions,
+            _ => Icons.Material.Filled.Category
+        };
+    }
+}
