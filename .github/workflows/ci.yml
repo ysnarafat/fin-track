@@ -15,11 +15,11 @@ on:
 env:
   # Only build projects that work on Linux (exclude MAUI)
   # All projects target .NET 9.0 to match runner installation
-  CORE_PROJECT: 'src/frontend/FinTrack.Core/FinTrack.Core.csproj'
-  SHARED_PROJECT: 'src/frontend/FinTrack.Shared/FinTrack.Shared.csproj'
-  INFRASTRUCTURE_PROJECT: 'src/frontend/FinTrack.Infrastructure/FinTrack.Infrastructure.csproj'
-  UNIT_TEST_PROJECT: 'src/frontend/FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj'
-  INTEGRATION_TEST_PROJECT: 'src/frontend/FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj'
+  CORE_PROJECT: 'src/frontend/src/FinTrack.Core/FinTrack.Core.csproj'
+  SHARED_PROJECT: 'src/frontend/src/FinTrack.Shared/FinTrack.Shared.csproj'
+  INFRASTRUCTURE_PROJECT: 'src/frontend/src/FinTrack.Infrastructure/FinTrack.Infrastructure.csproj'
+  UNIT_TEST_PROJECT: 'src/frontend/tests/FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj'
+  INTEGRATION_TEST_PROJECT: 'src/frontend/tests/FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj'
 
 jobs:
   build-and-test:
