@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinTrack.Maui.Views.ReportsPage"
+             Title="Reports"
+             BackgroundColor="#121212">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <!-- Header Section -->
+        <Frame Grid.Row="0" 
+               BackgroundColor="#1E1E1E" 
+               CornerRadius="0" 
+               Padding="20"
+               HasShadow="True">
+            <StackLayout Spacing="5">
+                <Label Text="Reports" 
+                       FontSize="28" 
+                       FontAttributes="Bold" 
+                       TextColor="White" />
+                <Label Text="Financial insights and analytics" 
+                       FontSize="14" 
+                       TextColor="#B0B0B0" />
+            </StackLayout>
+        </Frame>
+        <!-- Reports Content -->
+        <ScrollView Grid.Row="1" Padding="20">
+            <StackLayout Spacing="20">
+                <!-- Monthly Summary Card -->
+                <Frame BackgroundColor="#1E1E1E" 
+                       CornerRadius="12" 
+                       Padding="20"
+                       HasShadow="True">
+                    <StackLayout Spacing="15">
+                        <Label Text="Monthly Summary" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="White" />
+                        <Grid RowSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <!-- Income -->
+                            <Label Grid.Row="0" Grid.Column="0" 
+                                   Text="Total Income" 
+                                   FontSize="16" 
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Row="0" Grid.Column="1" 
+                                   Text="$3,500.00" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#4CAF50"
+                                   VerticalOptions="Center" />
+                            <!-- Expenses -->
+                            <Label Grid.Row="1" Grid.Column="0" 
+                                   Text="Total Expenses" 
+                                   FontSize="16" 
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Row="1" Grid.Column="1" 
+                                   Text="$1,250.00" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#F44336"
+                                   VerticalOptions="Center" />
+                            <!-- Net Income -->
+                            <BoxView Grid.Row="2" Grid.ColumnSpan="2" 
+                                     BackgroundColor="#333333" 
+                                     HeightRequest="1" 
+                                     Margin="0,5" />
+                            <Label Grid.Row="3" Grid.Column="0" 
+                                   Text="Net Income" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold" 
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Row="3" Grid.Column="1" 
+                                   Text="$2,250.00" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#4CAF50"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+                <!-- Spending by Category -->
+                <Frame BackgroundColor="#1E1E1E" 
+                       CornerRadius="12" 
+                       Padding="20"
+                       HasShadow="True">
+                    <StackLayout Spacing="15">
+                        <Label Text="Spending by Category" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="White" />
+                        <!-- Food & Dining -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" 
+                                   Text="🍽️" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center" />
+                            <StackLayout Grid.Column="1" 
+                                         Spacing="2"
+                                         VerticalOptions="Center"
+                                         Margin="10,0,0,0">
+                                <Label Text="Food and Dining" 
+                                       FontSize="16" 
+                                       TextColor="White" />
+                                <ProgressBar Progress="0.4" 
+                                             ProgressColor="#FF5722"
+                                             BackgroundColor="#333333" />
+                            </StackLayout>
+                            <Label Grid.Column="2" 
+                                   Text="$500.00" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <!-- Transportation -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" 
+                                   Text="🚗" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center" />
+                            <StackLayout Grid.Column="1" 
+                                         Spacing="2"
+                                         VerticalOptions="Center"
+                                         Margin="10,0,0,0">
+                                <Label Text="Transportation" 
+                                       FontSize="16" 
+                                       TextColor="White" />
+                                <ProgressBar Progress="0.3" 
+                                             ProgressColor="#2196F3"
+                                             BackgroundColor="#333333" />
+                            </StackLayout>
+                            <Label Grid.Column="2" 
+                                   Text="$375.00" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <!-- Shopping -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" 
+                                   Text="🛒" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center" />
+                            <StackLayout Grid.Column="1" 
+                                         Spacing="2"
+                                         VerticalOptions="Center"
+                                         Margin="10,0,0,0">
+                                <Label Text="Shopping" 
+                                       FontSize="16" 
+                                       TextColor="White" />
+                                <ProgressBar Progress="0.25" 
+                                             ProgressColor="#4CAF50"
+                                             BackgroundColor="#333333" />
+                            </StackLayout>
+                            <Label Grid.Column="2" 
+                                   Text="$312.50" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <!-- Utilities -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" 
+                                   Text="⚡" 
+                                   FontSize="20" 
+                                   VerticalOptions="Center" />
+                            <StackLayout Grid.Column="1" 
+                                         Spacing="2"
+                                         VerticalOptions="Center"
+                                         Margin="10,0,0,0">
+                                <Label Text="Utilities" 
+                                       FontSize="16" 
+                                       TextColor="White" />
+                                <ProgressBar Progress="0.05" 
+                                             ProgressColor="#FF9800"
+                                             BackgroundColor="#333333" />
+                            </StackLayout>
+                            <Label Grid.Column="2" 
+                                   Text="$62.50" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+                <!-- Trends Card -->
+                <Frame BackgroundColor="#1E1E1E" 
+                       CornerRadius="12" 
+                       Padding="20"
+                       HasShadow="True">
+                    <StackLayout Spacing="15">
+                        <Label Text="Trends" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="White" />
+                        <Grid RowSpacing="15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <!-- Spending Trend -->
+                            <StackLayout Grid.Column="0" Spacing="5">
+                                <Label Text="📉" 
+                                       FontSize="24" 
+                                       HorizontalOptions="Center" />
+                                <Label Text="Spending" 
+                                       FontSize="14" 
+                                       TextColor="#B0B0B0"
+                                       HorizontalOptions="Center" />
+                                <Label Text="↓ 5.2%" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#4CAF50"
+                                       HorizontalOptions="Center" />
+                                <Label Text="vs last month" 
+                                       FontSize="10" 
+                                       TextColor="#B0B0B0"
+                                       HorizontalOptions="Center" />
+                            </StackLayout>
+                            <!-- Income Trend -->
+                            <StackLayout Grid.Column="1" Spacing="5">
+                                <Label Text="📈" 
+                                       FontSize="24" 
+                                       HorizontalOptions="Center" />
+                                <Label Text="Income" 
+                                       FontSize="14" 
+                                       TextColor="#B0B0B0"
+                                       HorizontalOptions="Center" />
+                                <Label Text="↑ 2.1%" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#4CAF50"
+                                       HorizontalOptions="Center" />
+                                <Label Text="vs last month" 
+                                       FontSize="10" 
+                                       TextColor="#B0B0B0"
+                                       HorizontalOptions="Center" />
+                            </StackLayout>
+                        </Grid>
+                    </StackLayout>
+                </Frame>
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

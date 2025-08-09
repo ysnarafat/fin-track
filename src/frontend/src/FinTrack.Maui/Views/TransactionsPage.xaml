@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:FinTrack.Maui.ViewModels"
+             x:Class="FinTrack.Maui.Views.TransactionsPage"
+             Title="Transactions"
+             BackgroundColor="#121212">
+
+
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20">
+            
+            <!-- Header -->
+            <StackLayout Spacing="5">
+                <Label Text="Transactions" 
+                       FontSize="32" 
+                       FontAttributes="Bold" 
+                       TextColor="White" />
+                <Label Text="Manage your financial transactions" 
+                       FontSize="16" 
+                       TextColor="#B0B0B0" />
+            </StackLayout>
+
+            <!-- Search and Filter -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="12" 
+                   Padding="20"
+                   HasShadow="True">
+                <StackLayout Spacing="15">
+                    <Label Text="Search and Filter" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    
+                    <!-- Search -->
+                    <Entry Placeholder="Search transactions..." 
+                           Text="{Binding SearchText}"
+                           BackgroundColor="#2A2A2A"
+                           TextColor="White"
+                           PlaceholderColor="#B0B0B0" />
+                    
+                    <!-- Filter and Add Button -->
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <Picker Grid.Column="0" 
+                                Title="Filter by type"
+                                ItemsSource="{Binding TransactionTypes}"
+                                SelectedItem="{Binding SelectedTransactionType}"
+                                BackgroundColor="#2A2A2A"
+                                TextColor="White" />
+                        
+                        <Button Grid.Column="1" 
+                                Text="Add Transaction" 
+                                Command="{Binding AddTransactionCommand}"
+                                BackgroundColor="#1976D2"
+                                TextColor="White"
+                                CornerRadius="8"
+                                FontSize="14"
+                                Padding="15,8" />
+                    </Grid>
+                    
+                    <Button Text="Clear Filters" 
+                            Command="{Binding ClearFiltersCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#1976D2"
+                            FontSize="14"
+                            IsVisible="{Binding HasFilters}" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Summary Cards -->
+            <Grid RowSpacing="15" ColumnSpacing="15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                
+                <!-- Income Card -->
+                <Frame Grid.Row="0" Grid.Column="0" 
+                       BackgroundColor="#388E3C" 
+                       CornerRadius="12" 
+                       Padding="16"
+                       HasShadow="True">
+                    <StackLayout Spacing="8">
+                        <Label Text="💰" 
+                               FontSize="28" 
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding TotalIncome, StringFormat='{0:C}'}" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="White" 
+                               HorizontalOptions="Center" />
+                        <Label Text="Total Income" 
+                               FontSize="14" 
+                               TextColor="#E8F5E8" 
+                               HorizontalOptions="Center" />
+                    </StackLayout>
+                </Frame>
+                
+                <!-- Expenses Card -->
+                <Frame Grid.Row="0" Grid.Column="1" 
+                       BackgroundColor="#D32F2F" 
+                       CornerRadius="12" 
+                       Padding="16"
+                       HasShadow="True">
+                    <StackLayout Spacing="8">
+                        <Label Text="💸" 
+                               FontSize="28" 
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding TotalExpenses, StringFormat='{0:C}'}" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="White" 
+                               HorizontalOptions="Center" />
+                        <Label Text="Total Expenses" 
+                               FontSize="14" 
+                               TextColor="#FFEBEE" 
+                               HorizontalOptions="Center" />
+                    </StackLayout>
+                </Frame>
+                
+                <!-- Net Income Card -->
+                <Frame Grid.Row="1" Grid.Column="0" 
+                       BackgroundColor="#1976D2" 
+                       CornerRadius="12" 
+                       Padding="16"
+                       HasShadow="True">
+                    <StackLayout Spacing="8">
+                        <Label Text="📊" 
+                               FontSize="28" 
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding NetIncome, StringFormat='{0:C}'}" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="White" 
+                               HorizontalOptions="Center" />
+                        <Label Text="Net Income" 
+                               FontSize="14" 
+                               TextColor="#E3F2FD" 
+                               HorizontalOptions="Center" />
+                    </StackLayout>
+                </Frame>
+                
+                <!-- Total Transactions Card -->
+                <Frame Grid.Row="1" Grid.Column="1" 
+                       BackgroundColor="#F57C00" 
+                       CornerRadius="12" 
+                       Padding="16"
+                       HasShadow="True">
+                    <StackLayout Spacing="8">
+                        <Label Text="📋" 
+                               FontSize="28" 
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding TotalTransactions}" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="White" 
+                               HorizontalOptions="Center" />
+                        <Label Text="Transactions" 
+                               FontSize="14" 
+                               TextColor="#FFF3E0" 
+                               HorizontalOptions="Center" />
+                    </StackLayout>
+                </Frame>
+            </Grid>
+
+            <!-- Transactions List -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="12" 
+                   Padding="20"
+                   HasShadow="True">
+                <StackLayout Spacing="15">
+                    
+                    <!-- List Header -->
+                    <Label Text="All Transactions" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    
+                    <!-- Loading Indicator -->
+                    <ActivityIndicator IsVisible="{Binding IsLoading}" 
+                                     IsRunning="{Binding IsLoading}"
+                                     Color="#1976D2"
+                                     Margin="20" />
+                    
+                    <!-- Transactions CollectionView -->
+                    <CollectionView ItemsSource="{Binding FilteredTransactions}"
+                                  IsVisible="{Binding IsNotLoading}"
+                                  BackgroundColor="Transparent">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="0,12" BackgroundColor="Transparent">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Transaction Type Icon -->
+                                    <Frame Grid.Column="0"
+                                           BackgroundColor="#1976D2"
+                                           CornerRadius="25"
+                                           Padding="0"
+                                           WidthRequest="40"
+                                           HeightRequest="40"
+                                           VerticalOptions="Center">
+                                        <Label Text="{Binding TypeIcon}" 
+                                               FontSize="20" 
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Frame>
+
+                                    <!-- Transaction Details -->
+                                    <StackLayout Grid.Column="1" 
+                                               Spacing="2"
+                                               VerticalOptions="Center"
+                                               Margin="10,0,0,0">
+                                        <Label Text="{Binding Description}" 
+                                               FontSize="16" 
+                                               FontAttributes="Bold" 
+                                               TextColor="White" />
+                                        <StackLayout Orientation="Horizontal" Spacing="5">
+                                            <Label Text="{Binding FormattedDate}" 
+                                                   FontSize="12" 
+                                                   TextColor="#B0B0B0" />
+                                            <Label Text="•" 
+                                                   FontSize="12" 
+                                                   TextColor="#B0B0B0" />
+                                            <Frame BackgroundColor="#9C27B0" 
+                                                   CornerRadius="8" 
+                                                   Padding="6,2"
+                                                   Margin="0">
+                                                <Label Text="{Binding Category}" 
+                                                       FontSize="10" 
+                                                       TextColor="White" />
+                                            </Frame>
+                                        </StackLayout>
+                                    </StackLayout>
+
+                                    <!-- Amount -->
+                                    <Label Grid.Column="2" 
+                                           Text="{Binding FormattedAmount}" 
+                                           FontSize="16" 
+                                           FontAttributes="Bold" 
+                                           TextColor="{Binding AmountColor}"
+                                           VerticalOptions="Center"
+                                           Margin="10,0" />
+
+                                    <!-- Actions -->
+                                    <StackLayout Grid.Column="3" 
+                                               Orientation="Horizontal"
+                                               VerticalOptions="Center">
+                                        <Button Text="✏️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TransactionsViewModel}}, Path=EditTransactionCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Transparent"
+                                                TextColor="#1976D2"
+                                                FontSize="16"
+                                                Padding="5" />
+                                        <Button Text="🗑️" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TransactionsViewModel}}, Path=DeleteTransactionCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="Transparent"
+                                                TextColor="#F44336"
+                                                FontSize="16"
+                                                Padding="5" />
+                                    </StackLayout>
+                                    
+                                    <!-- Separator -->
+                                    <BoxView Grid.Column="0" Grid.ColumnSpan="4"
+                                           BackgroundColor="#333333"
+                                           HeightRequest="1"
+                                           Margin="0,12,0,0" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Empty State -->
+                    <StackLayout IsVisible="{Binding IsEmpty}" 
+                               Padding="40"
+                               HorizontalOptions="Center">
+                        <Label Text="📄" 
+                               FontSize="48" 
+                               HorizontalOptions="Center" />
+                        <Label Text="No transactions found" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               TextColor="#B0B0B0"
+                               HorizontalOptions="Center" />
+                        <Label Text="Start by adding your first transaction" 
+                               FontSize="14" 
+                               TextColor="#B0B0B0"
+                               HorizontalOptions="Center"
+                               Margin="0,5,0,0" />
+                    </StackLayout>
+                </StackLayout>
+            </Frame>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinTrack.Maui.Views.DashboardPage"
+             Title="Dashboard"
+             BackgroundColor="#121212">
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20">
+            <!-- Welcome Header -->
+            <StackLayout Spacing="5">
+                <Label Text="Financial Dashboard" 
+                       FontSize="32" 
+                       FontAttributes="Bold" 
+                       TextColor="White" />
+                <Label Text="Your complete financial overview" 
+                       FontSize="16" 
+                       TextColor="#B0B0B0" />
+            </StackLayout>
+            <!-- Quick Stats Cards -->
+            <Grid RowSpacing="15" ColumnSpacing="15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <!-- Total Balance Card -->
+                <Frame Grid.Row="0" Grid.Column="0" 
+                       BackgroundColor="#1976D2" 
+                       CornerRadius="12" 
+                       Padding="16"
+                       HasShadow="True">
+                    <StackLayout Spacing="8">
+                        <Label Text="💰" 
+                               FontSize="28" 
+                               HorizontalOptions="Center" />
+                        <Label Text="$12,500.00" 
+                               FontSize="22" 
+                               FontAttributes="Bold" 
+                               TextColor="White" 
+                               HorizontalOptions="Center" />
+                        <Label Text="Total Balance" 
+                               FontSize="14" 
+                               TextColor="#E3F2FD" 
+                               HorizontalOptions="Center" />
+                    </StackLayout>
+                </Frame>
+                <!-- Monthly Income Card -->
+                <Frame Grid.Row="0" Grid.Column="1" 
+                       BackgroundColor="#388E3C" 
+                       CornerRadius="12" 
+                       Padding="16"
+                       HasShadow="True">
+                    <StackLayout Spacing="8">
+                        <Label Text="📈" 
+                               FontSize="28" 
+                               HorizontalOptions="Center" />
+                        <Label Text="$3,500.00" 
+                               FontSize="22" 
+                               FontAttributes="Bold" 
+                               TextColor="White" 
+                               HorizontalOptions="Center" />
+                        <Label Text="This Month" 
+                               FontSize="14" 
+                               TextColor="#E8F5E8" 
+                               HorizontalOptions="Center" />
+                    </StackLayout>
+                </Frame>
+                <!-- Monthly Expenses Card -->
+                <Frame Grid.Row="1" Grid.Column="0" 
+                       BackgroundColor="#D32F2F" 
+                       CornerRadius="12" 
+                       Padding="16"
+                       HasShadow="True">
+                    <StackLayout Spacing="8">
+                        <Label Text="📉" 
+                               FontSize="28" 
+                               HorizontalOptions="Center" />
+                        <Label Text="$1,250.00" 
+                               FontSize="22" 
+                               FontAttributes="Bold" 
+                               TextColor="White" 
+                               HorizontalOptions="Center" />
+                        <Label Text="Expenses" 
+                               FontSize="14" 
+                               TextColor="#FFEBEE" 
+                               HorizontalOptions="Center" />
+                    </StackLayout>
+                </Frame>
+                <!-- Savings Rate Card -->
+                <Frame Grid.Row="1" Grid.Column="1" 
+                       BackgroundColor="#F57C00" 
+                       CornerRadius="12" 
+                       Padding="16"
+                       HasShadow="True">
+                    <StackLayout Spacing="8">
+                        <Label Text="🎯" 
+                               FontSize="28" 
+                               HorizontalOptions="Center" />
+                        <Label Text="64%" 
+                               FontSize="22" 
+                               FontAttributes="Bold" 
+                               TextColor="White" 
+                               HorizontalOptions="Center" />
+                        <Label Text="Savings Rate" 
+                               FontSize="14" 
+                               TextColor="#FFF3E0" 
+                               HorizontalOptions="Center" />
+                    </StackLayout>
+                </Frame>
+            </Grid>
+            <!-- Quick Actions Section -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="12" 
+                   Padding="20"
+                   HasShadow="True">
+                <StackLayout Spacing="15">
+                    <Label Text="Quick Actions" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" 
+                                Text="Add Transaction" 
+                                BackgroundColor="#1976D2"
+                                TextColor="White"
+                                CornerRadius="8"
+                                FontSize="16"
+                                Clicked="OnAddTransactionClicked" />
+                        <Button Grid.Column="1" 
+                                Text="View All" 
+                                BackgroundColor="#388E3C"
+                                TextColor="White"
+                                CornerRadius="8"
+                                FontSize="16"
+                                Clicked="OnViewTransactionsClicked" />
+                    </Grid>
+                </StackLayout>
+            </Frame>
+            <!-- Recent Transactions Section -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="12" 
+                   Padding="20"
+                   HasShadow="True">
+                <StackLayout Spacing="15">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0"
+                               Text="Recent Transactions" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="White"
+                               VerticalOptions="Center" />
+                        <Button Grid.Column="1"
+                                Text="View All" 
+                                BackgroundColor="Transparent"
+                                TextColor="#1976D2"
+                                FontSize="14"
+                                Clicked="OnViewTransactionsClicked" />
+                    </Grid>
+                    <!-- Recent Transactions List -->
+                    <StackLayout Spacing="12">
+                        <!-- Transaction 1 -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Frame Grid.Column="0" 
+                                   BackgroundColor="#FF5722"
+                                   CornerRadius="25"
+                                   Padding="0"
+                                   WidthRequest="40"
+                                   HeightRequest="40"
+                                   VerticalOptions="Center">
+                                <Label Text="🛒" 
+                                       FontSize="20" 
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Frame>
+                            <StackLayout Grid.Column="1" 
+                                         Spacing="2"
+                                         VerticalOptions="Center"
+                                         Margin="10,0,0,0">
+                                <Label Text="Grocery Shopping" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold" 
+                                       TextColor="White" />
+                                <Label Text="Today • Food and Dining" 
+                                       FontSize="12" 
+                                       TextColor="#B0B0B0" />
+                            </StackLayout>
+                            <Label Grid.Column="2" 
+                                   Text="-$85.50" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#F44336"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView BackgroundColor="#333333" HeightRequest="1" />
+                        <!-- Transaction 2 -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Frame Grid.Column="0" 
+                                   BackgroundColor="#4CAF50"
+                                   CornerRadius="25"
+                                   Padding="0"
+                                   WidthRequest="40"
+                                   HeightRequest="40"
+                                   VerticalOptions="Center">
+                                <Label Text="💰" 
+                                       FontSize="20" 
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Frame>
+                            <StackLayout Grid.Column="1" 
+                                         Spacing="2"
+                                         VerticalOptions="Center"
+                                         Margin="10,0,0,0">
+                                <Label Text="Monthly Salary" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold" 
+                                       TextColor="White" />
+                                <Label Text="Yesterday • Income" 
+                                       FontSize="12" 
+                                       TextColor="#B0B0B0" />
+                            </StackLayout>
+                            <Label Grid.Column="2" 
+                                   Text="+$3,500.00" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#4CAF50"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView BackgroundColor="#333333" HeightRequest="1" />
+                        <!-- Transaction 3 -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Frame Grid.Column="0" 
+                                   BackgroundColor="#FF9800"
+                                   CornerRadius="25"
+                                   Padding="0"
+                                   WidthRequest="40"
+                                   HeightRequest="40"
+                                   VerticalOptions="Center">
+                                <Label Text="⛽" 
+                                       FontSize="20" 
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Frame>
+                            <StackLayout Grid.Column="1" 
+                                         Spacing="2"
+                                         VerticalOptions="Center"
+                                         Margin="10,0,0,0">
+                                <Label Text="Gas Station" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold" 
+                                       TextColor="White" />
+                                <Label Text="2 days ago • Transportation" 
+                                       FontSize="12" 
+                                       TextColor="#B0B0B0" />
+                            </StackLayout>
+                            <Label Grid.Column="2" 
+                                   Text="-$45.20" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="#F44336"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </StackLayout>
+                </StackLayout>
+            </Frame>
+            <!-- Account Summary Section -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="12" 
+                   Padding="20"
+                   HasShadow="True">
+                <StackLayout Spacing="15">
+                    <Label Text="Account Summary" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    <StackLayout Spacing="12">
+                        <!-- Checking Account -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackLayout Grid.Column="0">
+                                <Label Text="Main Checking" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold" 
+                                       TextColor="White" />
+                                <Label Text="****1234" 
+                                       FontSize="12" 
+                                       TextColor="#B0B0B0" />
+                            </StackLayout>
+                            <Label Grid.Column="1" 
+                                   Text="$2,500.00" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView BackgroundColor="#333333" HeightRequest="1" />
+                        <!-- Savings Account -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackLayout Grid.Column="0">
+                                <Label Text="High Yield Savings" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold" 
+                                       TextColor="White" />
+                                <Label Text="****5678" 
+                                       FontSize="12" 
+                                       TextColor="#B0B0B0" />
+                            </StackLayout>
+                            <Label Grid.Column="1" 
+                                   Text="$10,000.00" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold" 
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </StackLayout>
+                </StackLayout>
+            </Frame>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

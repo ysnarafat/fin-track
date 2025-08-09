@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
+﻿using Microsoft.Extensions.Logging;
 using FinTrack.Maui.Data;
-using FinTrack.Maui.Themes;
-using MudBlazor;
-using MudBlazor.Services;
+using FinTrack.Maui.Services;
 
 namespace FinTrack.Maui;
 
@@ -16,30 +14,27 @@ public static class MauiProgram
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
 
-		builder.Services.AddMauiBlazorWebView();
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
+		builder.Logging.AddDebug();
 #endif
 
-		// Add MudBlazor services with custom theme
-		builder.Services.AddMudServices(config =>
-		{
-			config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
-			config.SnackbarConfiguration.PreventDuplicates = false;
-			config.SnackbarConfiguration.NewestOnTop = false;
-			config.SnackbarConfiguration.ShowCloseIcon = true;
-			config.SnackbarConfiguration.VisibleStateDuration = 10000;
-			config.SnackbarConfiguration.HideTransitionDuration = 500;
-			config.SnackbarConfiguration.ShowTransitionDuration = 500;
-			config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
-		});
-
-		// Register custom theme
-		builder.Services.AddSingleton(FinTrackTheme.DefaultTheme);
-
+		// Register Services
+		builder.Services.AddSingleton<ITransactionService, TransactionService>();
 		builder.Services.AddSingleton<WeatherForecastService>();
+
+		// Register ViewModels
+		builder.Services.AddTransient<FinTrack.Maui.ViewModels.TransactionsViewModel>();
+		builder.Services.AddTransient<FinTrack.Maui.ViewModels.TransactionFormViewModel>();
+
+		// Register Pages
+		builder.Services.AddTransient<FinTrack.Maui.Views.DashboardPage>();
+		builder.Services.AddTransient<FinTrack.Maui.Views.TransactionsPage>();
+		builder.Services.AddTransient<FinTrack.Maui.Views.TransactionFormPage>();
+		builder.Services.AddTransient<FinTrack.Maui.Views.AccountsPage>();
+		builder.Services.AddTransient<FinTrack.Maui.Views.ReportsPage>();
 
 		return builder.Build();
 	}

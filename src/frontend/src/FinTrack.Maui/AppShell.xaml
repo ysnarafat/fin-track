@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="FinTrack.Maui.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:FinTrack.Maui.Views"
+    Title="FinTrack">
+    <Shell.FlyoutBackgroundColor>#1E1E1E</Shell.FlyoutBackgroundColor>
+    <Shell.TitleColor>White</Shell.TitleColor>
+    <TabBar>
+        <!-- Dashboard Tab -->
+        <ShellContent
+            Title="Dashboard"
+            ContentTemplate="{DataTemplate views:DashboardPage}"
+            Route="dashboard"
+            Icon="dotnet_bot.svg" />
+        <!-- Transactions Tab -->
+        <ShellContent
+            Title="Transactions"
+            ContentTemplate="{DataTemplate views:TransactionsPage}"
+            Route="transactions"
+            Icon="dotnet_bot.svg" />
+        <!-- Accounts Tab -->
+        <ShellContent
+            Title="Accounts"
+            ContentTemplate="{DataTemplate views:AccountsPage}"
+            Route="accounts"
+            Icon="dotnet_bot.svg" />
+        <!-- Reports Tab -->
+        <ShellContent
+            Title="Reports"
+            ContentTemplate="{DataTemplate views:ReportsPage}"
+            Route="reports"
+            Icon="dotnet_bot.svg" />
+    </TabBar>
+    
+    <!-- Additional routes for navigation -->
+    <ShellContent
+        Route="transactions/add"
+        ContentTemplate="{DataTemplate views:TransactionFormPage}"
+        Shell.PresentationMode="Modal" />
+</Shell>
