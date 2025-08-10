@@ -2,9 +2,21 @@
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:FinTrack.Maui"
+             xmlns:services="clr-namespace:FinTrack.Maui.Services"
              x:Class="FinTrack.Maui.App">
     <Application.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <!-- Converters -->
+                    <services:CurrencyConverter x:Key="CurrencyConverter" />
+                    <services:PercentageConverter x:Key="PercentageConverter" />
+                    <services:PercentageToDecimalConverter x:Key="PercentageToDecimalConverter" />
+                    <services:AmountToColorConverter x:Key="AmountToColorConverter" />
+                    <services:IsNotNullConverter x:Key="IsNotNullConverter" />
+                    <services:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
 
             <Color x:Key="PageBackgroundColor">#512bdf</Color>
             <Color x:Key="PrimaryTextColor">White</Color>

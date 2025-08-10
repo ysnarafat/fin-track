@@ -26,6 +26,12 @@
             ContentTemplate="{DataTemplate views:AccountsPage}"
             Route="accounts"
             Icon="dotnet_bot.svg" />
+        <!-- Budgets Tab -->
+        <ShellContent
+            Title="Budgets"
+            ContentTemplate="{DataTemplate views:BudgetsPage}"
+            Route="budgets"
+            Icon="dotnet_bot.svg" />
         <!-- Reports Tab -->
         <ShellContent
             Title="Reports"
@@ -38,5 +44,15 @@
     <ShellContent
         Route="transactions/add"
         ContentTemplate="{DataTemplate views:TransactionFormPage}"
+        Shell.PresentationMode="Modal" />
+    
+    <ShellContent
+        Route="budgets/add"
+        ContentTemplate="{DataTemplate views:BudgetFormPage}"
+        Shell.PresentationMode="Modal" />
+    
+    <ShellContent
+        Route="budgets/edit"
+        ContentTemplate="{DataTemplate views:BudgetFormPage}"
         Shell.PresentationMode="Modal" />
 </Shell>

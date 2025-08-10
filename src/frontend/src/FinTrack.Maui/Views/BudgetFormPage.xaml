@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="FinTrack.Maui.Views.BudgetFormPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:services="clr-namespace:FinTrack.Maui.Services"
+             Title="{Binding PageTitle}"
+             BackgroundColor="#121212">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Converters -->
+            <services:CurrencyConverter x:Key="CurrencyConverter" />
+            
+            <!-- Styles -->
+            <Style x:Key="FormFrameStyle" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="#1E1E1E" />
+                <Setter Property="BorderColor" Value="#333333" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="Padding" Value="20" />
+                <Setter Property="Margin" Value="16" />
+                <Setter Property="HasShadow" Value="True" />
+            </Style>
+            
+            <Style x:Key="SectionLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+            
+            <Style x:Key="FieldLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="TextColor" Value="#B0B0B0" />
+                <Setter Property="Margin" Value="0,0,0,4" />
+            </Style>
+            
+            <Style x:Key="EntryStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="#2A2A2A" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="PlaceholderColor" Value="#666666" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="Margin" Value="0,0,0,16" />
+            </Style>
+            
+            <Style x:Key="PickerStyle" TargetType="Picker">
+                <Setter Property="BackgroundColor" Value="#2A2A2A" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="TitleColor" Value="#666666" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="Margin" Value="0,0,0,16" />
+            </Style>
+            
+            <Style x:Key="DatePickerStyle" TargetType="DatePicker">
+                <Setter Property="BackgroundColor" Value="#2A2A2A" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="Margin" Value="0,0,0,16" />
+            </Style>
+            
+            <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#3B82F6" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="16,12" />
+                <Setter Property="Margin" Value="0,8" />
+            </Style>
+            
+            <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="#B0B0B0" />
+                <Setter Property="BorderColor" Value="#333333" />
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="16,12" />
+                <Setter Property="Margin" Value="0,8" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <StackLayout Spacing="0">
+            
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsVisible="{Binding IsLoading}"
+                               IsRunning="{Binding IsLoading}"
+                               Color="White"
+                               Margin="0,20" />
+            
+            <!-- Form Content -->
+            <Frame Style="{StaticResource FormFrameStyle}"
+                   IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}">
+                <StackLayout Spacing="0">
+                    
+                    <!-- Basic Information Section -->
+                    <Label Text="Basic Information"
+                           Style="{StaticResource SectionLabelStyle}" />
+                    
+                    <!-- Budget Name -->
+                    <Label Text="Budget Name"
+                           Style="{StaticResource FieldLabelStyle}" />
+                    <Entry Text="{Binding Name}"
+                           Placeholder="e.g., Monthly Groceries"
+                           Style="{StaticResource EntryStyle}" />
+                    
+                    <!-- Category Selection -->
+                    <Label Text="Category"
+                           Style="{StaticResource FieldLabelStyle}" />
+                    <Picker ItemsSource="{Binding Categories}"
+                            SelectedItem="{Binding SelectedCategory}"
+                            ItemDisplayBinding="{Binding Name}"
+                            Title="Select a category"
+                            Style="{StaticResource PickerStyle}" />
+                    
+                    <!-- Category Preview -->
+                    <Frame IsVisible="{Binding SelectedCategory, Converter={StaticResource IsNotNullConverter}}"
+                           BackgroundColor="{Binding SelectedCategory.Color}"
+                           Padding="12,8"
+                           CornerRadius="6"
+                           HasShadow="False"
+                           Margin="0,0,0,16">
+                        <StackLayout Orientation="Horizontal" Spacing="8">
+                            <Label Text="{Binding SelectedCategory.Icon}"
+                                   FontSize="16"
+                                   VerticalOptions="Center" />
+                            <Label Text="{Binding SelectedCategory.Name}"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   VerticalOptions="Center" />
+                        </StackLayout>
+                    </Frame>
+                    
+                    <!-- Budget Amount -->
+                    <Label Text="Budget Amount"
+                           Style="{StaticResource FieldLabelStyle}" />
+                    <Entry Text="{Binding BudgetLimit}"
+                           Placeholder="0.00"
+                           Keyboard="Numeric"
+                           Style="{StaticResource EntryStyle}" />
+                    
+                    <!-- Budget Period Section -->
+                    <Label Text="Budget Period"
+                           Style="{StaticResource SectionLabelStyle}"
+                           Margin="0,24,0,8" />
+                    
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <!-- Start Date -->
+                        <StackLayout Grid.Column="0">
+                            <Label Text="Start Date"
+                                   Style="{StaticResource FieldLabelStyle}" />
+                            <DatePicker Date="{Binding StartDate}"
+                                        MinimumDate="{Binding MinDate}"
+                                        MaximumDate="{Binding MaxDate}"
+                                        Style="{StaticResource DatePickerStyle}" />
+                        </StackLayout>
+                        
+                        <!-- End Date -->
+                        <StackLayout Grid.Column="1">
+                            <Label Text="End Date"
+                                   Style="{StaticResource FieldLabelStyle}" />
+                            <DatePicker Date="{Binding EndDate}"
+                                        MinimumDate="{Binding StartDate}"
+                                        MaximumDate="{Binding MaxDate}"
+                                        Style="{StaticResource DatePickerStyle}" />
+                        </StackLayout>
+                    </Grid>
+                    
+                    <!-- Budget Preview -->
+                    <Frame IsVisible="{Binding SelectedCategory, Converter={StaticResource IsNotNullConverter}}"
+                           BackgroundColor="#2A2A2A"
+                           BorderColor="#333333"
+                           Padding="16"
+                           CornerRadius="8"
+                           HasShadow="False"
+                           Margin="0,16,0,0">
+                        <StackLayout Spacing="8">
+                            <Label Text="Budget Preview"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="White" />
+                            
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                                <Label Grid.Row="0" Grid.Column="0"
+                                       Text="Category:"
+                                       FontSize="12"
+                                       TextColor="#B0B0B0" />
+                                <Label Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding SelectedCategory.Name}"
+                                       FontSize="12"
+                                       TextColor="White" />
+                                
+                                <Label Grid.Row="1" Grid.Column="0"
+                                       Text="Amount:"
+                                       FontSize="12"
+                                       TextColor="#B0B0B0" />
+                                <Label Grid.Row="1" Grid.Column="1"
+                                       Text="{Binding BudgetLimit, Converter={StaticResource CurrencyConverter}}"
+                                       FontSize="12"
+                                       TextColor="White" />
+                                
+                                <Label Grid.Row="2" Grid.Column="0"
+                                       Text="Period:"
+                                       FontSize="12"
+                                       TextColor="#B0B0B0" />
+                                <Label Grid.Row="2" Grid.Column="1"
+                                       Text="{Binding StartDate, StringFormat='{0:MMM dd} - '}"
+                                       FontSize="12"
+                                       TextColor="White">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding StartDate, StringFormat='{0:MMM dd}'}" />
+                                            <Span Text=" - " />
+                                            <Span Text="{Binding EndDate, StringFormat='{0:MMM dd}'}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </Grid>
+                        </StackLayout>
+                    </Frame>
+                    
+                </StackLayout>
+            </Frame>
+            
+            <!-- Action Buttons -->
+            <StackLayout Margin="16,0,16,32"
+                         IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}">
+                
+                <!-- Save Button -->
+                <Button Text="{Binding SaveButtonText}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Command="{Binding SaveCommand}"
+                        IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                
+                <!-- Loading indicator for save -->
+                <ActivityIndicator IsVisible="{Binding IsSaving}"
+                                   IsRunning="{Binding IsSaving}"
+                                   Color="White"
+                                   Margin="0,8" />
+                
+                <!-- Cancel Button -->
+                <Button Text="Cancel"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding CancelCommand}"
+                        IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+            </StackLayout>
+            
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
