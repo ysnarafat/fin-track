@@ -1,0 +1,129 @@
+﻿@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<MudLayout>
+    <MudAppBar Elevation="1" Fixed="true">
+        <MudIconButton Icon="Icons.Material.Filled.Menu" 
+                       Color="Color.Inherit" 
+                       Edge="Edge.Start" 
+                       OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h6" Class="ml-3">FinTrack</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="Icons.Material.Filled.Brightness4" 
+                       Color="Color.Inherit" 
+                       OnClick="@ToggleTheme" />
+        <MudIconButton Icon="Icons.Material.Filled.MoreVert" 
+                       Color="Color.Inherit" 
+                       Edge="Edge.End" />
+    </MudAppBar>
+    
+    <MudDrawer @bind-Open="_drawerOpen" 
+               Elevation="2" 
+               Variant="@(_isMobile ? DrawerVariant.Temporary : DrawerVariant.Mini)" 
+               OpenMiniOnHover="@(!_isMobile)"
+               ClipMode="@(_isMobile ? DrawerClipMode.Always : DrawerClipMode.Never)">
+        <NavMenu />
+    </MudDrawer>
+    
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+    
+    <!-- Bottom Navigation for Mobile -->
+    @if (_isMobile)
+    {
+        <div class="mud-bottom-nav-fixed">
+            <MudPaper Elevation="8" Class="d-flex justify-space-around align-center pa-2">
+                <MudIconButton Icon="Icons.Material.Filled.Dashboard" 
+                               Color="Color.Primary" 
+                               Href="/" 
+                               Size="Size.Large" />
+                <MudIconButton Icon="Icons.Material.Filled.AccountBalance" 
+                               Color="Color.Primary" 
+                               Href="/accounts" 
+                               Size="Size.Large" />
+                <MudIconButton Icon="Icons.Material.Filled.Receipt" 
+                               Color="Color.Primary" 
+                               Href="/transactions" 
+                               Size="Size.Large" />
+                <MudIconButton Icon="Icons.Material.Filled.PieChart" 
+                               Color="Color.Primary" 
+                               Href="/budgets" 
+                               Size="Size.Large" />
+                <MudIconButton Icon="Icons.Material.Filled.TrendingUp" 
+                               Color="Color.Primary" 
+                               Href="/goals" 
+                               Size="Size.Large" />
+            </MudPaper>
+        </div>
+    }
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private bool _isMobile = false;
+    private IJSObjectReference? _jsModule;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CheckIfMobile();
+        
+        // Set initial drawer state based on screen size
+        _drawerOpen = !_isMobile;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/layout.js");
+            await _jsModule.InvokeVoidAsync("addResizeListener", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnWindowResize(int width)
+    {
+        var wasMobile = _isMobile;
+        _isMobile = width < 960; // MudBlazor's medium breakpoint
+        
+        if (wasMobile != _isMobile)
+        {
+            _drawerOpen = !_isMobile;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task CheckIfMobile()
+    {
+        try
+        {
+            var width = await JSRuntime.InvokeAsync<int>("window.innerWidth");
+            _isMobile = width < 960; // MudBlazor's medium breakpoint
+        }
+        catch
+        {
+            // Fallback to desktop layout if JS fails
+            _isMobile = false;
+        }
+    }
+
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private void ToggleTheme()
+    {
+        // Theme toggle functionality will be implemented later
+        // For now, just a placeholder
+    }
+
+    public void Dispose()
+    {
+        _jsModule?.DisposeAsync();
+    }
+}

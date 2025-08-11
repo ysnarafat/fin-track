@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Maui", "FinTrack.Maui\FinTrack.Maui.csproj", "{DD140487-0279-45C0-B504-D50E1D39CE40}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Maui", "src\FinTrack.Maui\FinTrack.Maui.csproj", "{DD140487-0279-45C0-B504-D50E1D39CE40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Core", "FinTrack.Core\FinTrack.Core.csproj", "{93879A0D-4A4A-4EA3-AF3D-DE31207535E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Core", "src\FinTrack.Core\FinTrack.Core.csproj", "{93879A0D-4A4A-4EA3-AF3D-DE31207535E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Shared", "FinTrack.Shared\FinTrack.Shared.csproj", "{19683881-6899-4A53-889B-94A5FB71C1FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Shared", "src\FinTrack.Shared\FinTrack.Shared.csproj", "{19683881-6899-4A53-889B-94A5FB71C1FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Infrastructure", "FinTrack.Infrastructure\FinTrack.Infrastructure.csproj", "{5F2673BF-9313-4232-9D4C-CA962E44E861}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Infrastructure", "src\FinTrack.Infrastructure\FinTrack.Infrastructure.csproj", "{5F2673BF-9313-4232-9D4C-CA962E44E861}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Tests.Unit", "FinTrack.Tests.Unit\FinTrack.Tests.Unit.csproj", "{4FDC1B67-644F-451B-A3C9-EF5A7A663E97}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Tests.Unit", "tests\FinTrack.Tests.Unit\FinTrack.Tests.Unit.csproj", "{4FDC1B67-644F-451B-A3C9-EF5A7A663E97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Tests.Integration", "FinTrack.Tests.Integration\FinTrack.Tests.Integration.csproj", "{4A45BBEA-B48D-423D-87E1-EDCECD94B780}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Tests.Integration", "tests\FinTrack.Tests.Integration\FinTrack.Tests.Integration.csproj", "{4A45BBEA-B48D-423D-87E1-EDCECD94B780}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

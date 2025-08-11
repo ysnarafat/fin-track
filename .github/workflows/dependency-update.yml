@@ -52,19 +52,19 @@ jobs:
         
         # Check each project individually
         echo "Checking Core project..."
-        dotnet outdated FinTrack.Core/FinTrack.Core.csproj --output json > core-outdated.json
+        dotnet outdated src/FinTrack.Core/FinTrack.Core.csproj --output json > core-outdated.json
         
         echo "Checking Shared project..."
-        dotnet outdated FinTrack.Shared/FinTrack.Shared.csproj --output json > shared-outdated.json
+        dotnet outdated src/FinTrack.Shared/FinTrack.Shared.csproj --output json > shared-outdated.json
         
         echo "Checking Infrastructure project..."
-        dotnet outdated FinTrack.Infrastructure/FinTrack.Infrastructure.csproj --output json > infrastructure-outdated.json
+        dotnet outdated src/FinTrack.Infrastructure/FinTrack.Infrastructure.csproj --output json > infrastructure-outdated.json
         
         echo "Checking Unit Test project..."
-        dotnet outdated FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj --output json > unit-test-outdated.json
+        dotnet outdated tests/FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj --output json > unit-test-outdated.json
         
         echo "Checking Integration Test project..."
-        dotnet outdated FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj --output json > integration-test-outdated.json
+        dotnet outdated tests/FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj --output json > integration-test-outdated.json
         
         # Check if any files have updates
         has_updates=false
@@ -84,19 +84,19 @@ jobs:
         
         # Update only minor and patch versions (safer)
         echo "Updating Core project..."
-        dotnet outdated FinTrack.Core/FinTrack.Core.csproj --upgrade --version-lock Major
+        dotnet outdated src/FinTrack.Core/FinTrack.Core.csproj --upgrade --version-lock Major
         
         echo "Updating Shared project..."
-        dotnet outdated FinTrack.Shared/FinTrack.Shared.csproj --upgrade --version-lock Major
+        dotnet outdated src/FinTrack.Shared/FinTrack.Shared.csproj --upgrade --version-lock Major
         
         echo "Updating Infrastructure project..."
-        dotnet outdated FinTrack.Infrastructure/FinTrack.Infrastructure.csproj --upgrade --version-lock Major
+        dotnet outdated src/FinTrack.Infrastructure/FinTrack.Infrastructure.csproj --upgrade --version-lock Major
         
         echo "Updating Unit Test project..."
-        dotnet outdated FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj --upgrade --version-lock Major
+        dotnet outdated tests/FinTrack.Tests.Unit/FinTrack.Tests.Unit.csproj --upgrade --version-lock Major
         
         echo "Updating Integration Test project..."
-        dotnet outdated FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj --upgrade --version-lock Major
+        dotnet outdated tests/FinTrack.Tests.Integration/FinTrack.Tests.Integration.csproj --upgrade --version-lock Major
 
     - name: Test after updates
       if: steps.outdated.outputs.has_updates == 'true'

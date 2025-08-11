@@ -1,0 +1,139 @@
+@using FinTrack.Core.Entities
+@using FinTrack.Core.Enums
+
+#nullable enable
+
+<MudCard Elevation="2" Class="pa-4 h-100">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Recent Transactions</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudButton Variant="Variant.Text" 
+                       Color="Color.Primary" 
+                       Size="Size.Small"
+                       StartIcon="Icons.Material.Filled.Add"
+                       Href="/transactions">
+                Add
+            </MudButton>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent Class="pa-0">
+        @if (Transactions?.Any() == true)
+        {
+            <MudList T="Transaction" Dense="true">
+                @foreach (var transaction in Transactions.Take(MaxItems))
+                {
+                    <MudListItem T="Transaction" Value="transaction">
+                        <div class="d-flex align-center justify-space-between w-100">
+                            <div class="d-flex align-center">
+                                <MudAvatar Color="@GetTransactionColor(transaction.Type)" 
+                                          Size="Size.Small" 
+                                          Class="mr-3">
+                                    <MudIcon Icon="@GetTransactionIcon(transaction.Type)" />
+                                </MudAvatar>
+                                <div>
+                                    <MudText Typo="Typo.body2" Class="font-weight-medium">
+                                        @transaction.Description
+                                    </MudText>
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                        @transaction.Date.ToString("MMM dd") • @(transaction.Category?.Name ?? "Uncategorized")
+                                    </MudText>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <MudText Typo="Typo.body2" 
+                                        Color="@GetAmountColor(transaction.Type)"
+                                        Class="font-weight-medium">
+                                    @GetFormattedAmount(transaction)
+                                </MudText>
+                                @if (!string.IsNullOrEmpty(transaction.Account?.Name))
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                        @transaction.Account.Name
+                                    </MudText>
+                                }
+                            </div>
+                        </div>
+                    </MudListItem>
+                    @if (transaction != Transactions.Take(MaxItems).Last())
+                    {
+                        <MudDivider />
+                    }
+                }
+            </MudList>
+            
+            @if (Transactions.Count() > MaxItems)
+            {
+                <MudCardActions Class="justify-center">
+                    <MudButton Variant="Variant.Text" 
+                               Color="Color.Primary" 
+                               StartIcon="Icons.Material.Filled.ViewList"
+                               Href="/transactions">
+                        View All (@Transactions.Count())
+                    </MudButton>
+                </MudCardActions>
+            }
+        }
+        else
+        {
+            <div class="pa-4 text-center">
+                <MudIcon Icon="Icons.Material.Filled.Receipt" 
+                         Size="Size.Large" 
+                         Color="Color.Secondary" 
+                         Class="mb-2" />
+                <MudText Typo="Typo.body1" Color="Color.Secondary">
+                    No transactions yet
+                </MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3">
+                    Start by recording your first transaction
+                </MudText>
+                <MudButton Variant="Variant.Filled" 
+                           Color="Color.Primary" 
+                           StartIcon="Icons.Material.Filled.Add"
+                           Href="/transactions">
+                    Add Transaction
+                </MudButton>
+            </div>
+        }
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public IEnumerable<Transaction>? Transactions { get; set; }
+    [Parameter] public int MaxItems { get; set; } = 5;
+
+    private string GetTransactionIcon(TransactionType type) => type switch
+    {
+        TransactionType.Income => Icons.Material.Filled.TrendingUp,
+        TransactionType.Expense => Icons.Material.Filled.TrendingDown,
+        TransactionType.Transfer => Icons.Material.Filled.SwapHoriz,
+        _ => Icons.Material.Filled.Receipt
+    };
+
+    private Color GetTransactionColor(TransactionType type) => type switch
+    {
+        TransactionType.Income => Color.Success,
+        TransactionType.Expense => Color.Error,
+        TransactionType.Transfer => Color.Info,
+        _ => Color.Default
+    };
+
+    private Color GetAmountColor(TransactionType type) => type switch
+    {
+        TransactionType.Income => Color.Success,
+        TransactionType.Expense => Color.Error,
+        _ => Color.Default
+    };
+
+    private string GetFormattedAmount(Transaction transaction)
+    {
+        var prefix = transaction.Type switch
+        {
+            TransactionType.Income => "+",
+            TransactionType.Expense => "-",
+            _ => ""
+        };
+        return $"{prefix}{transaction.Amount:C}";
+    }
+}

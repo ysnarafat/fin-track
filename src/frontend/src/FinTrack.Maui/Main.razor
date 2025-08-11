@@ -1,4 +1,8 @@
-﻿<Router AppAssembly="@typeof(Main).Assembly">
+﻿<MudThemeProvider Theme="@_theme" />
+<MudSnackbarProvider />
+<MudDialogProvider />
+
+<Router AppAssembly="@typeof(Main).Assembly">
 	<Found Context="routeData">
 		<RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -9,3 +13,7 @@
 		</LayoutView>
 	</NotFound>
 </Router>
+
+@code {
+	private MudTheme _theme = FinTrackTheme.DefaultTheme;
+}
