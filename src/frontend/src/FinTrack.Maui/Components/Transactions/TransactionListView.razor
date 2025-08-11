@@ -1,0 +1,506 @@
+@using FinTrack.Core.Entities
+@using FinTrack.Core.Enums
+
+<MudCard Elevation="2">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <div class="d-flex align-center justify-space-between">
+                <MudText Typo="Typo.h6">Transactions</MudText>
+                <div class="d-flex align-center gap-2">
+                    @if (ShowSearch)
+                    {
+                        <MudTextField @bind-Value="SearchTerm"
+                                     Placeholder="Search transactions..."
+                                     Variant="Variant.Outlined"
+                                     Margin="Margin.Dense"
+                                     Adornment="Adornment.Start"
+                                     AdornmentIcon="Icons.Material.Filled.Search"
+                                     Clearable="true"
+                                     DebounceInterval="300"
+                                     OnDebounceIntervalElapsed="OnSearchChanged"
+                                     Class="search-field" />
+                    }
+                    @if (ShowFilters)
+                    {
+                        <MudIconButton Icon="@(ShowFilterPanel ? Icons.Material.Filled.FilterListOff : Icons.Material.Filled.FilterList)"
+                                      Color="@(ShowFilterPanel ? Color.Primary : Color.Default)"
+                                      OnClick="ToggleFilters"
+                                      title="Toggle Filters" />
+                    }
+                </div>
+            </div>
+        </CardHeaderContent>
+    </MudCardHeader>
+
+    @if (ShowFilterPanel && ShowFilters)
+    {
+        <MudCardContent Class="pt-0">
+            @try
+            {
+                <TransactionFilters @bind-FilterState="FilterState"
+                                  Accounts="Accounts"
+                                  Categories="Categories"
+                                  OnFiltersChanged="OnFiltersChanged" />
+            }
+            catch (Exception ex)
+            {
+                <MudAlert Severity="Severity.Warning">
+                    Filters temporarily unavailable: @ex.Message
+                </MudAlert>
+            }
+        </MudCardContent>
+    }
+
+    <MudCardContent Class="pa-0">
+        @if (IsLoading)
+        {
+            <div class="d-flex justify-center pa-8">
+                <MudProgressCircular Indeterminate="true" />
+            </div>
+        }
+        else if (!FilteredTransactions.Any())
+        {
+            <div class="text-center pa-8">
+                <MudIcon Icon="Icons.Material.Filled.Receipt" Size="Size.Large" Color="Color.Secondary" />
+                <MudText Typo="Typo.h6" Color="Color.Secondary" Class="mt-2">
+                    @(HasFiltersApplied ? "No transactions match your filters" : "No transactions found")
+                </MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    @(HasFiltersApplied ? "Try adjusting your search criteria" : "Start by adding your first transaction")
+                </MudText>
+                @if (HasFiltersApplied)
+                {
+                    <MudButton Variant="Variant.Text" 
+                              Color="Color.Primary" 
+                              OnClick="ClearFilters"
+                              StartIcon="Icons.Material.Filled.Clear"
+                              Class="mt-2">
+                        Clear Filters
+                    </MudButton>
+                }
+            </div>
+        }
+        else
+        {
+            <MudTable T="Transaction" 
+                     Items="@FilteredTransactions" 
+                     Dense="@Dense"
+                     Hover="true" 
+                     Striped="true"
+                     FixedHeader="true"
+                     Height="@TableHeight"
+                     Loading="@IsLoading"
+                     LoadingProgressColor="Color.Primary"
+                     SortLabel="Sort By"
+                     AllowUnsorted="false"
+                     @bind-SelectedItem="SelectedTransaction"
+                     OnRowClick="OnRowClick"
+                     RowClassFunc="@GetRowClass"
+                     RowStyle="cursor: pointer;"
+                     Breakpoint="Breakpoint.Sm"
+                     HorizontalScrollbar="true">
+                
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel T="Transaction" SortBy="@(x => x.Date)">Date</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel T="Transaction" SortBy="@(x => x.Description)">Description</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel T="Transaction" SortBy="@(x => x.Category?.Name ?? "")">Category</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel T="Transaction" SortBy="@(x => x.Account?.Name ?? "")">Account</MudTableSortLabel></MudTh>
+                    <MudTh Class="text-right"><MudTableSortLabel T="Transaction" SortBy="@(x => x.Amount)">Amount</MudTableSortLabel></MudTh>
+                    @if (ShowActions)
+                    {
+                        <MudTh Class="text-center">Actions</MudTh>
+                    }
+                </HeaderContent>
+                
+                <RowTemplate>
+                    <MudTd DataLabel="Date">
+                        <div class="d-flex align-center">
+                            <MudIcon Icon="@GetTransactionTypeIcon(context.Type)" 
+                                    Color="@GetTransactionTypeColor(context.Type)" 
+                                    Size="Size.Small" 
+                                    Class="mr-2" />
+                            <div>
+                                <MudText Typo="Typo.body2">@context.Date.ToString("MMM dd")</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Date.ToString("yyyy")</MudText>
+                            </div>
+                        </div>
+                    </MudTd>
+                    
+                    <MudTd DataLabel="Description">
+                        <div>
+                            <MudText Typo="Typo.body2" Class="font-weight-medium">@context.Description</MudText>
+                            @if (!string.IsNullOrEmpty(context.ReferenceNumber))
+                            {
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">Ref: @context.ReferenceNumber</MudText>
+                            }
+                        </div>
+                    </MudTd>
+                    
+                    <MudTd DataLabel="Category">
+                        @if (context.Category != null)
+                        {
+                            <MudChip T="string" Size="Size.Small" 
+                                    Style="@($"background-color: {context.Category.Color ?? "#6B7280"}20; color: {context.Category.Color ?? "#6B7280"}")">
+                                @if (!string.IsNullOrEmpty(context.Category.Icon))
+                                {
+                                    <MudIcon Icon="@GetCategoryIcon(context.Category.Icon)" Size="Size.Small" Class="mr-1" />
+                                }
+                                @context.Category.Name
+                            </MudChip>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Uncategorized</MudText>
+                        }
+                    </MudTd>
+                    
+                    <MudTd DataLabel="Account">
+                        <div class="d-flex align-center">
+                            <MudText Typo="Typo.body2">@(context.Account?.Name ?? "Unknown")</MudText>
+                            @if (context.Type == TransactionType.Transfer && context.TransferToAccount != null)
+                            {
+                                <MudIcon Icon="Icons.Material.Filled.ArrowForward" Size="Size.Small" Class="mx-1" />
+                                <MudText Typo="Typo.body2">@context.TransferToAccount.Name</MudText>
+                            }
+                        </div>
+                    </MudTd>
+                    
+                    <MudTd DataLabel="Amount" Class="text-right">
+                        <MudText Typo="Typo.body2" 
+                                Color="@GetAmountColor(context.Type)" 
+                                Class="font-weight-bold">
+                            @GetFormattedAmount(context)
+                        </MudText>
+                        @if (context.IsReconciled)
+                        {
+                            <MudIcon Icon="Icons.Material.Filled.CheckCircle" 
+                                    Color="Color.Success" 
+                                    Size="Size.Small" 
+                                    title="Reconciled" />
+                        }
+                    </MudTd>
+                    
+                    @if (ShowActions)
+                    {
+                        <MudTd DataLabel="Actions" Class="text-center">
+                            <div class="d-flex justify-center gap-1">
+                                <MudIconButton Icon="Icons.Material.Filled.Edit" 
+                                              Size="Size.Small" 
+                                              Color="Color.Primary"
+                                              OnClick="@(async (e) => await OnEditTransaction.InvokeAsync(context))"
+                                              title="Edit Transaction" />
+                                <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                              Size="Size.Small" 
+                                              Color="Color.Error"
+                                              OnClick="@(async (e) => await OnDeleteTransaction.InvokeAsync(context))"
+                                              title="Delete Transaction" />
+                            </div>
+                        </MudTd>
+                    }
+                </RowTemplate>
+                
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[]{10, 25, 50, 100}" 
+                                  HorizontalAlignment="HorizontalAlignment.Right" />
+                </PagerContent>
+            </MudTable>
+        }
+    </MudCardContent>
+</MudCard>
+
+<style>
+    .search-field {
+        min-width: 200px;
+    }
+    
+    @@media (max-width: 600px) {
+        .search-field {
+            min-width: 150px;
+        }
+        
+        .mud-table-cell {
+            padding: 8px 4px !important;
+            font-size: 0.875rem;
+        }
+        
+        .mud-table-head .mud-table-cell {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    }
+    
+    @@media (max-width: 480px) {
+        .mud-table-cell {
+            padding: 6px 2px !important;
+            font-size: 0.8rem;
+        }
+        
+        .mud-table-head .mud-table-cell {
+            font-size: 0.7rem;
+        }
+    }
+    
+    .mud-table-row:hover {
+        background-color: var(--mud-palette-action-hover) !important;
+    }
+    
+    .selected-row {
+        background-color: var(--mud-palette-primary-lighten) !important;
+    }
+</style>
+
+@code {
+    [Parameter] public List<Transaction> Transactions { get; set; } = new();
+    [Parameter] public List<Account>? Accounts { get; set; }
+    [Parameter] public List<Category>? Categories { get; set; }
+    [Parameter] public bool IsLoading { get; set; } = false;
+    [Parameter] public bool Dense { get; set; } = false;
+    [Parameter] public bool ShowSearch { get; set; } = true;
+    [Parameter] public bool ShowFilters { get; set; } = true;
+    [Parameter] public bool ShowActions { get; set; } = true;
+    [Parameter] public string TableHeight { get; set; } = "400px";
+    [Parameter] public EventCallback<Transaction> OnTransactionSelected { get; set; }
+    [Parameter] public EventCallback<Transaction> OnEditTransaction { get; set; }
+    [Parameter] public EventCallback<Transaction> OnDeleteTransaction { get; set; }
+
+    private string SearchTerm = string.Empty;
+    private bool ShowFilterPanel = false;
+    private Transaction? SelectedTransaction;
+    private TransactionFilterState FilterState = new();
+
+    private List<Transaction> _filteredTransactions = new();
+    private IEnumerable<Transaction> FilteredTransactions => _filteredTransactions;
+
+    private bool HasFiltersApplied => 
+        !string.IsNullOrWhiteSpace(SearchTerm) ||
+        FilterState.HasFiltersApplied;
+
+    private IEnumerable<Transaction> ApplyFilters()
+    {
+        try
+        {
+            if (Transactions == null)
+                return new List<Transaction>();
+
+            var filtered = Transactions.AsEnumerable();
+
+            // Apply search filter
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                filtered = filtered.Where(t => 
+                    (t.Description?.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) == true) ||
+                    (t.Category?.Name?.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) == true) ||
+                    (t.Account?.Name?.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) == true) ||
+                    (t.ReferenceNumber?.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) == true) ||
+                    (t.Notes?.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) == true));
+            }
+
+            // Apply other filters only if ShowFilters is true
+            if (ShowFilters && FilterState != null)
+            {
+                filtered = FilterState.ApplyFilters(filtered);
+            }
+
+            return filtered.OrderByDescending(t => t.Date).ThenByDescending(t => t.CreatedAt);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in ApplyFilters: {ex.Message}");
+            return Transactions?.ToList() ?? new List<Transaction>();
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        try
+        {
+            UpdateFilteredTransactions();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in OnParametersSet: {ex.Message}");
+            _filteredTransactions = new List<Transaction>();
+        }
+    }
+
+    private void UpdateFilteredTransactions()
+    {
+        try
+        {
+            _filteredTransactions = ApplyFilters().ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in UpdateFilteredTransactions: {ex.Message}");
+            _filteredTransactions = Transactions?.ToList() ?? new List<Transaction>();
+        }
+    }
+
+    private void OnSearchChanged(string searchTerm)
+    {
+        SearchTerm = searchTerm ?? string.Empty;
+        UpdateFilteredTransactions();
+        StateHasChanged();
+    }
+
+    private void ToggleFilters()
+    {
+        ShowFilterPanel = !ShowFilterPanel;
+    }
+
+    private void OnFiltersChanged()
+    {
+        UpdateFilteredTransactions();
+        StateHasChanged();
+    }
+
+    private void ClearFilters()
+    {
+        SearchTerm = string.Empty;
+        FilterState = new TransactionFilterState();
+        ShowFilterPanel = false;
+        UpdateFilteredTransactions();
+        StateHasChanged();
+    }
+
+    private async Task OnRowClick(TableRowClickEventArgs<Transaction> args)
+    {
+        SelectedTransaction = args.Item;
+        if (OnTransactionSelected.HasDelegate)
+        {
+            await OnTransactionSelected.InvokeAsync(args.Item);
+        }
+    }
+
+    private string GetRowClass(Transaction transaction, int index)
+    {
+        return SelectedTransaction?.Id == transaction.Id ? "selected-row" : "";
+    }
+
+    private string GetTransactionTypeIcon(TransactionType type)
+    {
+        return type switch
+        {
+            TransactionType.Income => Icons.Material.Filled.TrendingUp,
+            TransactionType.Expense => Icons.Material.Filled.TrendingDown,
+            TransactionType.Transfer => Icons.Material.Filled.SwapHoriz,
+            _ => Icons.Material.Filled.Receipt
+        };
+    }
+
+    private Color GetTransactionTypeColor(TransactionType type)
+    {
+        return type switch
+        {
+            TransactionType.Income => Color.Success,
+            TransactionType.Expense => Color.Error,
+            TransactionType.Transfer => Color.Info,
+            _ => Color.Default
+        };
+    }
+
+    private Color GetAmountColor(TransactionType type)
+    {
+        return type switch
+        {
+            TransactionType.Income => Color.Success,
+            TransactionType.Expense => Color.Error,
+            TransactionType.Transfer => Color.Info,
+            _ => Color.Default
+        };
+    }
+
+    private string GetFormattedAmount(Transaction transaction)
+    {
+        var prefix = transaction.Type switch
+        {
+            TransactionType.Income => "+",
+            TransactionType.Expense => "-",
+            TransactionType.Transfer => "",
+            _ => ""
+        };
+
+        return $"{prefix}{transaction.Amount:C}";
+    }
+
+    private string GetCategoryIcon(string? iconName)
+    {
+        if (string.IsNullOrEmpty(iconName))
+            return Icons.Material.Filled.Category;
+
+        return iconName.ToLower() switch
+        {
+            "food" or "restaurant" => Icons.Material.Filled.Restaurant,
+            "gas" or "fuel" => Icons.Material.Filled.LocalGasStation,
+            "shopping" or "store" => Icons.Material.Filled.ShoppingCart,
+            "entertainment" => Icons.Material.Filled.Movie,
+            "health" or "medical" => Icons.Material.Filled.LocalHospital,
+            "transport" or "car" => Icons.Material.Filled.DirectionsCar,
+            "home" or "house" => Icons.Material.Filled.Home,
+            "utilities" => Icons.Material.Filled.ElectricBolt,
+            "education" => Icons.Material.Filled.School,
+            "salary" or "income" => Icons.Material.Filled.AccountBalance,
+            "investment" => Icons.Material.Filled.TrendingUp,
+            "gift" => Icons.Material.Filled.CardGiftcard,
+            "travel" => Icons.Material.Filled.Flight,
+            "insurance" => Icons.Material.Filled.Security,
+            "phone" => Icons.Material.Filled.Phone,
+            "internet" => Icons.Material.Filled.Wifi,
+            "subscription" => Icons.Material.Filled.Subscriptions,
+            _ => Icons.Material.Filled.Category
+        };
+    }
+
+    public class TransactionFilterState
+    {
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public List<int> SelectedAccountIds { get; set; } = new();
+        public List<int> SelectedCategoryIds { get; set; } = new();
+        public List<TransactionType> SelectedTypes { get; set; } = new();
+        public decimal? MinAmount { get; set; }
+        public decimal? MaxAmount { get; set; }
+        public bool? IsReconciled { get; set; }
+
+        public bool HasFiltersApplied =>
+            StartDate.HasValue ||
+            EndDate.HasValue ||
+            SelectedAccountIds.Any() ||
+            SelectedCategoryIds.Any() ||
+            SelectedTypes.Any() ||
+            MinAmount.HasValue ||
+            MaxAmount.HasValue ||
+            IsReconciled.HasValue;
+
+        public IEnumerable<Transaction> ApplyFilters(IEnumerable<Transaction> transactions)
+        {
+            var filtered = transactions;
+
+            if (StartDate.HasValue)
+                filtered = filtered.Where(t => t.Date >= StartDate.Value);
+
+            if (EndDate.HasValue)
+                filtered = filtered.Where(t => t.Date <= EndDate.Value);
+
+            if (SelectedAccountIds.Any())
+                filtered = filtered.Where(t => SelectedAccountIds.Contains(t.AccountId));
+
+            if (SelectedCategoryIds.Any())
+                filtered = filtered.Where(t => SelectedCategoryIds.Contains(t.CategoryId));
+
+            if (SelectedTypes.Any())
+                filtered = filtered.Where(t => SelectedTypes.Contains(t.Type));
+
+            if (MinAmount.HasValue)
+                filtered = filtered.Where(t => t.Amount >= MinAmount.Value);
+
+            if (MaxAmount.HasValue)
+                filtered = filtered.Where(t => t.Amount <= MaxAmount.Value);
+
+            if (IsReconciled.HasValue)
+                filtered = filtered.Where(t => t.IsReconciled == IsReconciled.Value);
+
+            return filtered;
+        }
+    }
+}

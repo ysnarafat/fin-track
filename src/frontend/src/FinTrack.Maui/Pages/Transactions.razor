@@ -1,23 +1,273 @@
 @page "/transactions"
+@page "/transactions-minimal"
+@using FinTrack.Core.Entities
+@using FinTrack.Core.Enums
+@inject ISnackbar Snackbar
 
 <PageTitle>Transactions - FinTrack</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large">
-    <MudText Typo="Typo.h4" GutterBottom="true">Transactions</MudText>
-    <MudText Typo="Typo.body1" Color="Color.Secondary">
-        Record and manage your financial transactions here. This page will be implemented in future tasks.
-    </MudText>
+<MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
+    <MudText Typo="Typo.h4" GutterBottom="true">Transactions (Minimal Version)</MudText>
     
-    <MudPaper Class="pa-4 mt-4" Elevation="2">
-        <MudText Typo="Typo.h6" GutterBottom="true">Coming Soon</MudText>
-        <MudText Typo="Typo.body2">
-            Transaction management features including:
-        </MudText>
-        <MudList T="string">
-            <MudListItem T="string" Icon="Icons.Material.Filled.Receipt" Text="View all transactions" />
-            <MudListItem T="string" Icon="Icons.Material.Filled.Add" Text="Add new transactions" />
-            <MudListItem T="string" Icon="Icons.Material.Filled.FilterList" Text="Filter and search transactions" />
-            <MudListItem T="string" Icon="Icons.Material.Filled.Category" Text="Categorize transactions" />
-        </MudList>
-    </MudPaper>
+    <MudAlert Severity="Severity.Info" Class="mb-4">
+        This is a simplified version to debug the freezing issue. Complex components have been temporarily removed.
+    </MudAlert>
+    
+    <MudCard Elevation="2" Class="pa-4">
+        <MudText Typo="Typo.h6" Class="mb-4">Transaction List</MudText>
+        
+        @if (IsLoading)
+        {
+            <div class="d-flex justify-center pa-4">
+                <MudProgressCircular Indeterminate="true" />
+                <MudText Class="ml-2">Loading transactions...</MudText>
+            </div>
+        }
+        else if (SampleTransactions?.Any() == true)
+        {
+            <MudSimpleTable Style="overflow-x: auto;">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Account</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transaction in SampleTransactions)
+                    {
+                        <tr>
+                            <td>@transaction.Date.ToString("MMM dd, yyyy")</td>
+                            <td>@transaction.Description</td>
+                            <td>
+                                <MudChip T="string" Size="Size.Small" Color="@GetTypeColor(transaction.Type)">
+                                    @transaction.Type
+                                </MudChip>
+                            </td>
+                            <td style="color: @GetAmountColorStyle(transaction.Type)">
+                                @GetFormattedAmount(transaction)
+                            </td>
+                            <td>@(transaction.Account?.Name ?? "Unknown")</td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        }
+        else
+        {
+            <MudText>No transactions found.</MudText>
+        }
+        
+        <div class="mt-4">
+            <MudButton Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      StartIcon="Icons.Material.Filled.Add"
+                      OnClick="AddSampleTransaction">
+                Add Sample Transaction
+            </MudButton>
+            
+            <MudButton Variant="Variant.Outlined" 
+                      Color="Color.Secondary" 
+                      StartIcon="Icons.Material.Filled.Refresh"
+                      OnClick="RefreshData"
+                      Class="ml-2">
+                Refresh
+            </MudButton>
+        </div>
+    </MudCard>
+    
+    <!-- Simple Stats -->
+    <MudGrid Class="mt-4">
+        <MudItem xs="12" sm="4">
+            <MudCard Elevation="1" Class="pa-3 text-center">
+                <MudText Typo="Typo.h6" Color="Color.Success">@TotalIncome.ToString("C")</MudText>
+                <MudText Typo="Typo.body2">Income</MudText>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudCard Elevation="1" Class="pa-3 text-center">
+                <MudText Typo="Typo.h6" Color="Color.Error">@TotalExpenses.ToString("C")</MudText>
+                <MudText Typo="Typo.body2">Expenses</MudText>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudCard Elevation="1" Class="pa-3 text-center">
+                <MudText Typo="Typo.h6" Color="Color.Primary">@SampleTransactions.Count</MudText>
+                <MudText Typo="Typo.body2">Total</MudText>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
 </MudContainer>
+
+<style>
+    @@media (max-width: 600px) {
+        .add-transaction-btn {
+            min-width: auto;
+            padding: 8px 16px;
+        }
+        
+        .add-transaction-btn .mud-button-label {
+            display: none;
+        }
+    }
+</style>
+
+@code {
+    private bool IsLoading = false;
+    private List<Transaction> SampleTransactions = new();
+    private List<Account> SampleAccounts = new();
+    private List<Category> SampleCategories = new();
+
+    private decimal TotalIncome => SampleTransactions?.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount) ?? 0;
+    private decimal TotalExpenses => SampleTransactions?.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount) ?? 0;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            LoadSampleData();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in OnInitialized: {ex.Message}");
+            SampleTransactions = new List<Transaction>();
+        }
+    }
+
+    private void LoadSampleData()
+    {
+        try
+        {
+            // Simple sample accounts
+            SampleAccounts = new List<Account>
+            {
+                new Account { Id = 1, Name = "Checking", Type = AccountType.Checking, Balance = 2500.00m, IsActive = true },
+                new Account { Id = 2, Name = "Savings", Type = AccountType.Savings, Balance = 10000.00m, IsActive = true }
+            };
+
+            // Simple sample categories
+            SampleCategories = new List<Category>
+            {
+                new Category { Id = 1, Name = "Groceries", Color = "#4CAF50", IsActive = true },
+                new Category { Id = 2, Name = "Salary", Color = "#2196F3", IsActive = true }
+            };
+
+            // Simple sample transactions
+            SampleTransactions = new List<Transaction>
+            {
+                new Transaction 
+                { 
+                    Id = 1, 
+                    Amount = 3500.00m, 
+                    Description = "Monthly Salary", 
+                    Date = DateTime.Today.AddDays(-1), 
+                    Type = TransactionType.Income, 
+                    AccountId = 1, 
+                    CategoryId = 2,
+                    Account = SampleAccounts[0],
+                    Category = SampleCategories[1],
+                    CreatedAt = DateTime.Now.AddDays(-1)
+                },
+                new Transaction 
+                { 
+                    Id = 2, 
+                    Amount = 85.50m, 
+                    Description = "Grocery Shopping", 
+                    Date = DateTime.Today.AddDays(-2), 
+                    Type = TransactionType.Expense, 
+                    AccountId = 1, 
+                    CategoryId = 1,
+                    Account = SampleAccounts[0],
+                    Category = SampleCategories[0],
+                    CreatedAt = DateTime.Now.AddDays(-2)
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading sample data: {ex.Message}");
+            SampleTransactions = new List<Transaction>();
+            SampleAccounts = new List<Account>();
+            SampleCategories = new List<Category>();
+        }
+    }
+
+    private void AddSampleTransaction()
+    {
+        try
+        {
+            var newTransaction = new Transaction
+            {
+                Id = SampleTransactions.Count + 1,
+                Amount = new Random().Next(10, 500),
+                Description = $"Sample Transaction {SampleTransactions.Count + 1}",
+                Date = DateTime.Today,
+                Type = TransactionType.Expense,
+                AccountId = 1,
+                CategoryId = 1,
+                Account = SampleAccounts.FirstOrDefault(),
+                Category = SampleCategories.FirstOrDefault(),
+                CreatedAt = DateTime.Now
+            };
+            
+            SampleTransactions.Add(newTransaction);
+            Snackbar.Add("Sample transaction added", Severity.Success);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error adding transaction: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void RefreshData()
+    {
+        try
+        {
+            LoadSampleData();
+            Snackbar.Add("Data refreshed", Severity.Info);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error refreshing data: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private Color GetTypeColor(TransactionType type)
+    {
+        return type switch
+        {
+            TransactionType.Income => Color.Success,
+            TransactionType.Expense => Color.Error,
+            TransactionType.Transfer => Color.Info,
+            _ => Color.Default
+        };
+    }
+
+    private string GetAmountColorStyle(TransactionType type)
+    {
+        return type switch
+        {
+            TransactionType.Income => "green",
+            TransactionType.Expense => "red",
+            TransactionType.Transfer => "blue",
+            _ => "black"
+        };
+    }
+
+    private string GetFormattedAmount(Transaction transaction)
+    {
+        var prefix = transaction.Type switch
+        {
+            TransactionType.Income => "+",
+            TransactionType.Expense => "-",
+            TransactionType.Transfer => "",
+            _ => ""
+        };
+
+        return $"{prefix}{transaction.Amount:C}";
+    }
+}

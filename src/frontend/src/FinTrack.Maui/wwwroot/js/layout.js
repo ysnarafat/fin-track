@@ -2,27 +2,39 @@
 let dotNetHelper = null;
 
 export function addResizeListener(dotNetObjectReference) {
-    dotNetHelper = dotNetObjectReference;
-    
-    // Add resize event listener
-    window.addEventListener('resize', handleResize);
-    
-    // Initial call to set the correct state
-    handleResize();
+    try {
+        dotNetHelper = dotNetObjectReference;
+        
+        // Add resize event listener
+        window.addEventListener('resize', handleResize);
+        
+        // Initial call to set the correct state
+        handleResize();
+    } catch (error) {
+        console.error('Error in addResizeListener:', error);
+    }
 }
 
 function handleResize() {
-    if (dotNetHelper) {
-        const width = window.innerWidth;
-        dotNetHelper.invokeMethodAsync('OnWindowResize', width);
+    try {
+        if (dotNetHelper) {
+            const width = window.innerWidth;
+            dotNetHelper.invokeMethodAsync('OnWindowResize', width);
+        }
+    } catch (error) {
+        console.error('Error in handleResize:', error);
     }
 }
 
 // Cleanup function
 export function removeResizeListener() {
-    if (dotNetHelper) {
-        window.removeEventListener('resize', handleResize);
-        dotNetHelper = null;
+    try {
+        if (dotNetHelper) {
+            window.removeEventListener('resize', handleResize);
+            dotNetHelper = null;
+        }
+    } catch (error) {
+        console.error('Error in removeResizeListener:', error);
     }
 }
 
