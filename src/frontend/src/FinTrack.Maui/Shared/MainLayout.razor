@@ -69,46 +69,93 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await CheckIfMobile();
-        
-        // Set initial drawer state based on screen size
-        _drawerOpen = !_isMobile;
+        try
+        {
+            await CheckIfMobile();
+            
+            // Set initial drawer state based on screen size
+            _drawerOpen = !_isMobile;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in OnInitializedAsync: {ex.Message}");
+            // Fallback to desktop layout
+            _isMobile = false;
+            _drawerOpen = true;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/layout.js");
-            await _jsModule.InvokeVoidAsync("addResizeListener", DotNetObjectReference.Create(this));
+            // Temporarily disable JavaScript interop to isolate the issue
+            // TODO: Re-enable once the JSException is resolved
+            /*
+            try
+            {
+                _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/layout.js");
+                await _jsModule.InvokeVoidAsync("addResizeListener", DotNetObjectReference.Create(this));
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't crash the app
+                Console.WriteLine($"JavaScript interop error: {ex.Message}");
+                // Fallback to desktop layout
+                _isMobile = false;
+                _drawerOpen = true;
+            }
+            */
+            
+            // Static fallback for now
+            _isMobile = false;
+            _drawerOpen = true;
         }
     }
 
     [JSInvokable]
     public async Task OnWindowResize(int width)
     {
-        var wasMobile = _isMobile;
-        _isMobile = width < 960; // MudBlazor's medium breakpoint
-        
-        if (wasMobile != _isMobile)
+        try
         {
-            _drawerOpen = !_isMobile;
-            await InvokeAsync(StateHasChanged);
+            var wasMobile = _isMobile;
+            _isMobile = width < 960; // MudBlazor's medium breakpoint
+            
+            if (wasMobile != _isMobile)
+            {
+                _drawerOpen = !_isMobile;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in OnWindowResize: {ex.Message}");
         }
     }
 
     private async Task CheckIfMobile()
     {
+        // Temporarily disable JavaScript calls to isolate the JSException issue
+        // TODO: Re-enable once the issue is resolved
+        /*
         try
         {
-            var width = await JSRuntime.InvokeAsync<int>("window.innerWidth");
+            // Add a small delay to ensure the DOM is ready
+            await Task.Delay(100);
+            var width = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
             _isMobile = width < 960; // MudBlazor's medium breakpoint
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"Error checking mobile state: {ex.Message}");
             // Fallback to desktop layout if JS fails
             _isMobile = false;
         }
+        */
+        
+        // Static fallback for now
+        await Task.CompletedTask;
+        _isMobile = false;
     }
 
     private void ToggleDrawer()
@@ -124,6 +171,14 @@
 
     public void Dispose()
     {
-        _jsModule?.DisposeAsync();
+        try
+        {
+            _jsModule?.InvokeVoidAsync("removeResizeListener");
+            _jsModule?.DisposeAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error disposing JavaScript module: {ex.Message}");
+        }
     }
 }
