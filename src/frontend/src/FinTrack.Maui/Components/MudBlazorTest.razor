@@ -1,0 +1,53 @@
+@page "/mudtest"
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4">
+    <MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-4">
+        MudBlazor Integration Test
+    </MudText>
+    
+    <MudCard Class="mb-4">
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Class="mb-2">Theme Colors</MudText>
+            <MudStack Row="true" Spacing="2" Class="mb-3">
+                <MudChip T="string" Color="Color.Primary">Primary</MudChip>
+                <MudChip T="string" Color="Color.Secondary">Secondary</MudChip>
+                <MudChip T="string" Color="Color.Tertiary">Tertiary</MudChip>
+                <MudChip T="string" Color="Color.Success">Success</MudChip>
+                <MudChip T="string" Color="Color.Warning">Warning</MudChip>
+                <MudChip T="string" Color="Color.Error">Error</MudChip>
+            </MudStack>
+            
+            <MudText Typo="Typo.body1" Class="mb-3">
+                This page demonstrates that MudBlazor is properly integrated with our custom financial theme.
+            </MudText>
+            
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowSnackbar">
+                Test Snackbar
+            </MudButton>
+        </MudCardContent>
+    </MudCard>
+    
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Class="mb-2">Sample Form</MudText>
+            <MudTextField @bind-Value="testValue" Label="Test Input" Variant="Variant.Outlined" Class="mb-3" />
+            <MudSelect @bind-Value="selectedOption" Label="Test Select" Variant="Variant.Outlined">
+                <MudSelectItem Value="@("Option 1")">Option 1</MudSelectItem>
+                <MudSelectItem Value="@("Option 2")">Option 2</MudSelectItem>
+                <MudSelectItem Value="@("Option 3")">Option 3</MudSelectItem>
+            </MudSelect>
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private string testValue = "";
+    private string selectedOption = "";
+    
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    
+    private void ShowSnackbar()
+    {
+        Snackbar.Add("MudBlazor is working correctly!", Severity.Success);
+    }
+}
