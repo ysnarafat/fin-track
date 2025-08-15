@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="FinTrack.Maui.Views.GoalsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:FinTrack.Maui.Models"
+             xmlns:services="clr-namespace:FinTrack.Maui.Services"
+             Title="Goals"
+             BackgroundColor="#121212">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Converters -->
+            <services:CurrencyConverter x:Key="CurrencyConverter" />
+            <services:PercentageConverter x:Key="PercentageConverter" />
+
+            <!-- Styles -->
+            <Style x:Key="CardBorderStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="#1E1E1E" />
+                <Setter Property="Stroke" Value="#333333" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+                <Setter Property="Padding" Value="16" />
+                <Setter Property="Margin" Value="16,8,16,8" />
+            </Style>
+
+            <Style x:Key="SummaryCardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="#1E1E1E" />
+                <Setter Property="Stroke" Value="#333333" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+                <Setter Property="Padding" Value="12" />
+                <Setter Property="Margin" Value="4,4,4,4" />
+            </Style>
+
+            <Style x:Key="GoalCardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="#1E1E1E" />
+                <Setter Property="Stroke" Value="#333333" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+                <Setter Property="Padding" Value="16" />
+                <Setter Property="Margin" Value="16,8,16,8" />
+            </Style>
+
+            <Style x:Key="TitleLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="White" />
+            </Style>
+
+            <Style x:Key="SubtitleLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="TextColor" Value="#B0B0B0" />
+            </Style>
+
+            <Style x:Key="AmountLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="White" />
+            </Style>
+
+            <Style x:Key="AchievementCardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="#10B981" />
+                <Setter Property="Stroke" Value="#059669" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+                <Setter Property="Padding" Value="12" />
+                <Setter Property="Margin" Value="8,4,8,4" />
+            </Style>
+
+            <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#3B82F6" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="8,4" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#6B7280" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="8,6" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="ActionButtonStyle" TargetType="Button">
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="WidthRequest" Value="36" />
+                <Setter Property="HeightRequest" Value="36" />
+                <Setter Property="Padding" Value="0" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding RefreshCommand}"
+                 RefreshColor="White">
+
+        <ScrollView>
+            <StackLayout Spacing="8">
+
+                <!-- Loading Indicator -->
+                <ActivityIndicator IsVisible="{Binding IsLoading}"
+                                   IsRunning="{Binding IsLoading}"
+                                   Color="White"
+                                   Margin="0,20" />
+
+                <!-- Goal Statistics -->
+                <Border Style="{StaticResource CardBorderStyle}"
+                        IsVisible="{Binding GoalStatistics, Converter={StaticResource IsNotNullConverter}}">
+                    <StackLayout Spacing="12">
+                        <Label Text="Goal Overview"
+                               Style="{StaticResource TitleLabelStyle}" />
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                            <!-- Total Goals -->
+                            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource SummaryCardStyle}">
+                                <StackLayout Spacing="4">
+                                    <Label Text="Total Goals" Style="{StaticResource SubtitleLabelStyle}" />
+                                    <Label Text="{Binding GoalStatistics.TotalGoals}"
+                                           Style="{StaticResource AmountLabelStyle}" />
+                                </StackLayout>
+                            </Border>
+
+                            <!-- Active Goals -->
+                            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource SummaryCardStyle}">
+                                <StackLayout Spacing="4">
+                                    <Label Text="Active" Style="{StaticResource SubtitleLabelStyle}" />
+                                    <Label Text="{Binding GoalStatistics.ActiveGoals}"
+                                           Style="{StaticResource AmountLabelStyle}" />
+                                </StackLayout>
+                            </Border>
+
+                            <!-- Total Target -->
+                            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource SummaryCardStyle}">
+                                <StackLayout Spacing="4">
+                                    <Label Text="Target Amount" Style="{StaticResource SubtitleLabelStyle}" />
+                                    <Label Text="{Binding GoalStatistics.TotalTargetAmount, Converter={StaticResource CurrencyConverter}}"
+                                           Style="{StaticResource AmountLabelStyle}" />
+                                </StackLayout>
+                            </Border>
+
+                            <!-- Overall Progress -->
+                            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource SummaryCardStyle}">
+                                <StackLayout Spacing="4">
+                                    <Label Text="Progress" Style="{StaticResource SubtitleLabelStyle}" />
+                                    <Label Text="{Binding GoalStatistics.OverallProgressPercentage, StringFormat='{0:F0}%'}"
+                                           Style="{StaticResource AmountLabelStyle}" />
+                                </StackLayout>
+                            </Border>
+                        </Grid>
+                    </StackLayout>
+                </Border>
+
+                <!-- Recent Achievements -->
+                <Border Style="{StaticResource CardBorderStyle}"
+                        IsVisible="{Binding HasRecentAchievements}">
+                    <StackLayout Spacing="12">
+                        <Label Text="🎉 Recent Achievements"
+                               Style="{StaticResource TitleLabelStyle}" />
+
+                        <CollectionView ItemsSource="{Binding RecentAchievements}"
+                                        ItemsLayout="HorizontalList">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:GoalMilestone">
+                                    <Border Style="{StaticResource AchievementCardStyle}"
+                                            WidthRequest="200">
+                                        <StackLayout Spacing="4">
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White" />
+                                            <Label Text="{Binding TargetAmount, Converter={StaticResource CurrencyConverter}}"
+                                                   FontSize="12"
+                                                   TextColor="White" />
+                                            <Label Text="{Binding AchievedDateText}"
+                                                   FontSize="10"
+                                                   TextColor="#E5E7EB" />
+                                        </StackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                </Border>
+
+                <!-- Filter and Add Button -->
+                <Grid Margin="16,8,16,8" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <Picker Grid.Column="0"
+                            ItemsSource="{Binding FilterOptions}"
+                            SelectedItem="{Binding SelectedFilter}"
+                            BackgroundColor="#1E1E1E"
+                            TextColor="White"
+                            TitleColor="#B0B0B0"
+                            Title="Filter Goals" />
+
+                    <Button Grid.Column="1"
+                            Text="+ Add Goal"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding AddGoalCommand}" />
+                </Grid>
+
+                <!-- Empty State -->
+                <StackLayout IsVisible="{Binding HasFilteredGoals, Converter={StaticResource InvertedBoolConverter}}"
+                             Spacing="16"
+                             Margin="32">
+                    <Label Text="🎯"
+                           FontSize="48"
+                           HorizontalOptions="Center" />
+                    <Label Text="No goals yet"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center" />
+                    <Label Text="Set your first financial goal and start your journey to financial success"
+                           FontSize="14"
+                           TextColor="#B0B0B0"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                    <Button Text="Create Goal"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            HorizontalOptions="Center"
+                            Command="{Binding AddGoalCommand}" />
+                </StackLayout>
+
+                <!-- Goals List -->
+                <CollectionView ItemsSource="{Binding FilteredGoals}"
+                                IsVisible="{Binding HasFilteredGoals}"
+                                ItemSizingStrategy="MeasureAllItems">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Goal">
+                            <Border Style="{StaticResource GoalCardStyle}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditGoalCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*,Auto" RowSpacing="8" ColumnSpacing="12">
+
+                                    <!-- Goal Color Indicator -->
+                                    <BoxView Grid.Row="0" Grid.RowSpan="5" Grid.Column="0"
+                                             Color="{Binding Color}"
+                                             WidthRequest="4"
+                                             CornerRadius="2" />
+
+                                    <!-- Goal Header -->
+                                    <StackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding Name}"
+                                               Style="{StaticResource TitleLabelStyle}" />
+                                        <Label Text="{Binding Category}"
+                                               Style="{StaticResource SubtitleLabelStyle}" />
+                                    </StackLayout>
+
+                                    <!-- Status and Priority -->
+                                    <StackLayout Grid.Row="0" Grid.Column="2" Spacing="4">
+                                        <Border BackgroundColor="{Binding StatusColor}"
+                                                Padding="8,4"
+                                                StrokeShape="RoundRectangle 12"
+                                                Stroke="Transparent">
+                                            <Label Text="{Binding StatusText}"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White" />
+                                        </Border>
+                                        <Border BackgroundColor="{Binding PriorityColor}"
+                                                Padding="6,2"
+                                                StrokeShape="RoundRectangle 8"
+                                                Stroke="Transparent">
+                                            <Label Text="{Binding PriorityText}"
+                                                   FontSize="10"
+                                                   TextColor="White" />
+                                        </Border>
+                                    </StackLayout>
+
+                                    <!-- Progress Bar -->
+                                    <StackLayout Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="4">
+                                        <ProgressBar Progress="{Binding ProgressPercentage, Converter={StaticResource PercentageToDecimalConverter}}"
+                                                     ProgressColor="{Binding Color}"
+                                                     BackgroundColor="#333333"
+                                                     HeightRequest="8" />
+                                        <Label Text="{Binding ProgressPercentage, StringFormat='{0:F0}% complete'}"
+                                               FontSize="12"
+                                               TextColor="#B0B0B0" />
+                                    </StackLayout>
+
+                                    <!-- Amount Info -->
+                                    <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
+                                          ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                                        <StackLayout Grid.Column="0" Spacing="2">
+                                            <Label Text="Current" Style="{StaticResource SubtitleLabelStyle}" />
+                                            <Label Text="{Binding CurrentAmount, Converter={StaticResource CurrencyConverter}}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White" />
+                                        </StackLayout>
+
+                                        <StackLayout Grid.Column="1" Spacing="2">
+                                            <Label Text="Target" Style="{StaticResource SubtitleLabelStyle}" />
+                                            <Label Text="{Binding TargetAmount, Converter={StaticResource CurrencyConverter}}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White" />
+                                        </StackLayout>
+
+                                        <StackLayout Grid.Column="2" Spacing="2">
+                                            <Label Text="Remaining" Style="{StaticResource SubtitleLabelStyle}" />
+                                            <Label Text="{Binding RemainingAmount, Converter={StaticResource CurrencyConverter}}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#F59E0B" />
+                                        </StackLayout>
+                                    </Grid>
+
+                                    <!-- Timeline Info -->
+                                    <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
+                                          ColumnDefinitions="*,*" ColumnSpacing="8">
+                                        <StackLayout Grid.Column="0" Spacing="2">
+                                            <Label Text="Target Date" Style="{StaticResource SubtitleLabelStyle}" />
+                                            <Label Text="{Binding TargetDateText}"
+                                                   FontSize="12"
+                                                   TextColor="White" />
+                                        </StackLayout>
+
+                                        <StackLayout Grid.Column="1" Spacing="2">
+                                            <Label Text="Time Left" Style="{StaticResource SubtitleLabelStyle}" />
+                                            <Label Text="{Binding DaysRemainingText}"
+                                                   FontSize="12"
+                                                   TextColor="{Binding StatusColor}" />
+                                        </StackLayout>
+                                    </Grid>
+
+                                    <!-- Action Buttons -->
+                                    <Grid Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                                          ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding RequiredMonthlySavings, StringFormat='Save {0:C0}/month'}"
+                                               FontSize="12"
+                                               TextColor="#B0B0B0"
+                                               VerticalOptions="Center" />
+
+                                        <Button Grid.Column="1"
+                                                Text="📈"
+                                                Style="{StaticResource ActionButtonStyle}"
+                                                BackgroundColor="#10B981"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.UpdateProgressCommand}"
+                                                CommandParameter="{Binding .}"
+                                                ToolTipProperties.Text="Update Progress" />
+
+                                        <Button Grid.Column="2"
+                                                Text="✏️"
+                                                Style="{StaticResource ActionButtonStyle}"
+                                                BackgroundColor="#3B82F6"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditGoalCommand}"
+                                                CommandParameter="{Binding .}"
+                                                ToolTipProperties.Text="Edit Goal" />
+
+                                        <Button Grid.Column="3"
+                                                Text="🗑️"
+                                                Style="{StaticResource ActionButtonStyle}"
+                                                BackgroundColor="#EF4444"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteGoalCommand}"
+                                                CommandParameter="{Binding .}"
+                                                ToolTipProperties.Text="Delete Goal" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Bottom Spacing -->
+                <BoxView HeightRequest="16" Color="Transparent" />
+
+            </StackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

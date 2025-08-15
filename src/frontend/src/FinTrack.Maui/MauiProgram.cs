@@ -24,6 +24,7 @@ public static class MauiProgram
         // Register Services
         builder.Services.AddSingleton<ITransactionService, TransactionService>();
         builder.Services.AddSingleton<IBudgetService, BudgetService>();
+        builder.Services.AddSingleton<IGoalService, GoalService>();
         builder.Services.AddSingleton<WeatherForecastService>();
 
         // Register ViewModels
@@ -31,6 +32,8 @@ public static class MauiProgram
         builder.Services.AddTransient<ViewModels.TransactionFormViewModel>();
         builder.Services.AddTransient<ViewModels.BudgetsViewModel>();
         builder.Services.AddTransient<ViewModels.BudgetFormViewModel>();
+        builder.Services.AddTransient<ViewModels.GoalsViewModel>();
+        builder.Services.AddTransient<ViewModels.GoalFormViewModel>();
 
         // Register Pages
         builder.Services.AddTransient<Views.DashboardPage>();
@@ -40,6 +43,8 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.ReportsPage>();
         builder.Services.AddTransient<Views.BudgetsPage>();
         builder.Services.AddTransient<Views.BudgetFormPage>();
+        builder.Services.AddTransient<Views.GoalsPage>();
+        builder.Services.AddTransient<Views.GoalFormPage>();
 
         return builder.Build();
     }

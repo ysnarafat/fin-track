@@ -177,3 +177,120 @@ public class InvertedBoolConverter : IValueConverter
         return false;
     }
 }
+
+/// <summary>
+/// Converter for boolean to color with parameter support
+/// </summary>
+public class BoolToColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool boolValue && parameter is string colorParam)
+        {
+            var colors = colorParam.Split('|');
+            if (colors.Length == 2)
+            {
+                return Color.FromArgb(boolValue ? colors[0] : colors[1]);
+            }
+        }
+        
+        return Color.FromArgb("#6B7280"); // Default gray
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>
+/// Converter for boolean to string with parameter support
+/// </summary>
+public class BoolToStringConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool boolValue && parameter is string stringParam)
+        {
+            var strings = stringParam.Split('|');
+            if (strings.Length == 2)
+            {
+                return boolValue ? strings[0] : strings[1];
+            }
+        }
+        
+        return string.Empty;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>
+/// Converter for integer to boolean with parameter support
+/// </summary>
+public class IntToBoolConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is int intValue && parameter is string condition)
+        {
+            if (condition.StartsWith(">"))
+            {
+                if (int.TryParse(condition.Substring(1), out var threshold))
+                {
+                    return intValue > threshold;
+                }
+            }
+            else if (condition.StartsWith("<"))
+            {
+                if (int.TryParse(condition.Substring(1), out var threshold))
+                {
+                    return intValue < threshold;
+                }
+            }
+            else if (condition.StartsWith("="))
+            {
+                if (int.TryParse(condition.Substring(1), out var threshold))
+                {
+                    return intValue == threshold;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>
+/// Converter for index-based selection (for Picker)
+/// </summary>
+public class IndexConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is int intValue)
+        {
+            return intValue - 1; // Convert 1-based to 0-based index
+        }
+        
+        return 0;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is int intValue)
+        {
+            return intValue + 1; // Convert 0-based to 1-based index
+        }
+        
+        return 1;
+    }
+}
