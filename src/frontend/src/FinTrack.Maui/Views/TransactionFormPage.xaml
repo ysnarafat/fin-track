@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:FinTrack.Maui.ViewModels"
+             x:Class="FinTrack.Maui.Views.TransactionFormPage"
+             Title="{Binding PageTitle}"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20">
+            
+            <!-- Form Card -->
+            <Frame BackgroundColor="White" 
+                   CornerRadius="15" 
+                   Padding="20"
+                   HasShadow="True">
+                <StackLayout Spacing="20">
+                    
+                    <!-- Transaction Type -->
+                    <StackLayout>
+                        <Label Text="Transaction Type" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="Black" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <Button Grid.Column="0" 
+                                    Text="Income" 
+                                    Command="{Binding SelectTypeCommand}"
+                                    CommandParameter="Income"
+                                    BackgroundColor="{Binding IncomeButtonColor}"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    Margin="0,0,5,0" />
+                            
+                            <Button Grid.Column="1" 
+                                    Text="Expense" 
+                                    Command="{Binding SelectTypeCommand}"
+                                    CommandParameter="Expense"
+                                    BackgroundColor="{Binding ExpenseButtonColor}"
+                                    TextColor="White"
+                                    CornerRadius="10"
+                                    Margin="5,0,0,0" />
+                            
+
+                        </Grid>
+                    </StackLayout>
+
+                    <!-- Amount -->
+                    <StackLayout>
+                        <Label Text="Amount" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="Black" />
+                        <Entry Text="{Binding Amount}" 
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               BackgroundColor="LightGray"
+                               TextColor="Black"
+                               PlaceholderColor="Gray" />
+                    </StackLayout>
+
+                    <!-- Description -->
+                    <StackLayout>
+                        <Label Text="Description" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="Black" />
+                        <Entry Text="{Binding Description}" 
+                               Placeholder="Enter description..."
+                               BackgroundColor="LightGray"
+                               TextColor="Black"
+                               PlaceholderColor="Gray" />
+                    </StackLayout>
+
+                    <!-- Date -->
+                    <StackLayout>
+                        <Label Text="Date" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="Black" />
+                        <DatePicker Date="{Binding Date}" 
+                                   BackgroundColor="LightGray"
+                                   TextColor="Black" />
+                    </StackLayout>
+
+                    <!-- Category -->
+                    <StackLayout>
+                        <Label Text="Category" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="Black" />
+                        <Picker ItemsSource="{Binding Categories}"
+                               SelectedItem="{Binding SelectedCategory}"
+                               Title="Select Category"
+                               BackgroundColor="LightGray"
+                               TextColor="Black" />
+                    </StackLayout>
+                </StackLayout>
+            </Frame>
+
+            <!-- Action Buttons -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Column="0" 
+                        Text="Cancel" 
+                        Command="{Binding CancelCommand}"
+                        BackgroundColor="Gray"
+                        TextColor="White"
+                        CornerRadius="10"
+                        Margin="0,0,10,0" />
+                
+                <Button Grid.Column="1" 
+                        Text="{Binding SaveButtonText}" 
+                        Command="{Binding SaveCommand}"
+                        BackgroundColor="#4CAF50"
+                        TextColor="White"
+                        CornerRadius="10"
+                        Margin="10,0,0,0"
+                        IsEnabled="{Binding CanSave}" />
+            </Grid>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsVisible="{Binding IsSaving}" 
+                             IsRunning="{Binding IsSaving}"
+                             Color="#2196F3" />
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

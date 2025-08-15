@@ -2,19 +2,19 @@
 
 ## Introduction
 
-This document outlines the requirements for restructuring the fin-track project from its current structure to a mobile and offline-first Blazor Hybrid MAUI application. The restructured application will support cross-platform deployment to desktop (Windows, macOS), mobile (Android, iOS), and web platforms, with a primary focus on mobile and offline capabilities.
+This document outlines the requirements for restructuring the fin-track project from its current structure to a mobile and offline-first pure XAML MAUI application. The restructured application will support cross-platform deployment to desktop (Windows, macOS) and mobile (Android, iOS) platforms, with a primary focus on mobile and offline capabilities using native XAML UI.
 
 ## Requirements
 
 ### Requirement 1
 
-**User Story:** As a developer, I want a properly structured Blazor Hybrid MAUI project, so that I can build and deploy the fin-track application across multiple platforms efficiently.
+**User Story:** As a developer, I want a properly structured pure XAML MAUI project, so that I can build and deploy the fin-track application across multiple platforms efficiently with native performance.
 
 #### Acceptance Criteria
 
-1. WHEN the project is restructured THEN the solution SHALL contain a .NET MAUI Blazor Hybrid project structure
-2. WHEN the project is built THEN it SHALL support compilation for Android, iOS, Windows, macOS, and Web platforms
-3. WHEN examining the project structure THEN it SHALL follow .NET MAUI best practices and conventions
+1. WHEN the project is restructured THEN the solution SHALL contain a .NET MAUI project structure with XAML UI
+2. WHEN the project is built THEN it SHALL support compilation for Android, iOS, Windows, and macOS platforms
+3. WHEN examining the project structure THEN it SHALL follow .NET MAUI best practices and XAML conventions
 
 ### Requirement 2
 
