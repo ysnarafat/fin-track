@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Documentation Sync",
+  "description": "Listens to all source files in the repository and automatically updates README.md or creates/updates documentation in /docs folder when source files change",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source files have been modified. Please analyze the changes and update the documentation accordingly. Update the existing README.md file or create/update documentation in a /docs folder if it exists. Ensure the documentation reflects the current state of the codebase, including any new features, API changes, or architectural updates. If README.md doesn't exist, create one. Focus on keeping documentation accurate and helpful for users and developers."
+  }
+}
