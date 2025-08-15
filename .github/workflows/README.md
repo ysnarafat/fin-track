@@ -5,7 +5,12 @@ Simple CI/CD workflows designed for Linux self-hosted runners.
 ## Workflows
 
 ### 1. CI (`ci.yml`)
-**Triggers:** Push/PR to main/develop branches
+**Triggers:** Push/PR to main/develop/topic branches
+
+**Supported Branch Patterns:**
+- `main` - Main production branch
+- `develop` - Development integration branch  
+- `topic/{issue_no}/{issue_slug}` - Feature/topic branches
 
 **What it does:**
 - Builds core libraries (excludes MAUI project)
@@ -105,17 +110,24 @@ dotnet outdated --upgrade --version-lock Major
 
 ## Artifacts
 
-- **test-results**: Test execution results and coverage
+- **test-results-{run_number}**: Test execution results and coverage
 - **outdated-packages-report**: Dependency update reports
 
 Retention: 30 days
 
 ## Development Workflow
 
-1. **Develop** business logic in Core/Shared/Infrastructure
-2. **Test** with unit and integration tests
-3. **Push** to trigger CI
-4. **Review** PR comments and coverage reports
-5. **Merge** when CI passes
+### Branch-Based Development
+1. **Create topic branch**: `git checkout -b topic/123/add-new-feature`
+2. **Develop** business logic in Core/Shared/Infrastructure
+3. **Push** to trigger CI on your topic branch
+4. **Create PR** to main/develop to trigger CI validation
+5. **Review** PR comments and coverage reports
+6. **Merge** when CI passes
+
+### Supported Workflows
+- **Direct push** to main/develop/topic branches triggers CI
+- **Pull requests** to main/develop/topic branches trigger CI
+- **All branches** get the same comprehensive validation
 
 For MAUI/platform builds, you'll need separate Windows/macOS runners or local development.
