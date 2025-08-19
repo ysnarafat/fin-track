@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="FinTrack.Maui.Views.SyncStatusPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Sync Status"
+             BackgroundColor="#121212">
+
+    <ScrollView>
+        <StackLayout Padding="16" Spacing="16">
+            
+            <!-- Connection Status Card -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="8" 
+                   Padding="16" 
+                   HasShadow="False">
+                <StackLayout Spacing="12">
+                    <Label Text="Connection Status" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    
+                    <StackLayout Orientation="Horizontal" Spacing="8">
+                        <Label Text="●" 
+                               FontSize="16" 
+                               TextColor="{Binding StatusColor}" 
+                               VerticalOptions="Center" />
+                        <Label Text="{Binding StatusText}" 
+                               FontSize="16" 
+                               TextColor="White" 
+                               VerticalOptions="Center" />
+                    </StackLayout>
+                    
+                    <Label Text="{Binding IsOnline, StringFormat='Network: {0}'}" 
+                           FontSize="14" 
+                           TextColor="#CCCCCC" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Sync Information Card -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="8" 
+                   Padding="16" 
+                   HasShadow="False">
+                <StackLayout Spacing="12">
+                    <Label Text="Sync Information" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <Label Grid.Row="0" Grid.Column="0" 
+                               Text="Last Sync:" 
+                               FontSize="14" 
+                               TextColor="#CCCCCC" />
+                        <Label Grid.Row="0" Grid.Column="1" 
+                               Text="{Binding LastSyncText}" 
+                               FontSize="14" 
+                               TextColor="White" />
+                        
+                        <Label Grid.Row="1" Grid.Column="0" 
+                               Text="Pending Changes:" 
+                               FontSize="14" 
+                               TextColor="#CCCCCC" />
+                        <Label Grid.Row="1" Grid.Column="1" 
+                               Text="{Binding PendingChangesCount}" 
+                               FontSize="14" 
+                               TextColor="White" />
+                        
+                        <Label Grid.Row="2" Grid.Column="0" 
+                               Text="Sync State:" 
+                               FontSize="14" 
+                               TextColor="#CCCCCC" />
+                        <Label Grid.Row="2" Grid.Column="1" 
+                               Text="{Binding SyncState}" 
+                               FontSize="14" 
+                               TextColor="White" />
+                    </Grid>
+                </StackLayout>
+            </Frame>
+
+            <!-- Actions Card -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="8" 
+                   Padding="16" 
+                   HasShadow="False">
+                <StackLayout Spacing="12">
+                    <Label Text="Actions" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    
+                    <Button Text="Sync Now" 
+                            BackgroundColor="#2196F3" 
+                            TextColor="White" 
+                            CornerRadius="6"
+                            Clicked="OnSyncNowClicked"
+                            IsEnabled="{Binding IsOnline}" />
+                    
+                    <Button Text="View Pending Changes" 
+                            BackgroundColor="#FF9800" 
+                            TextColor="White" 
+                            CornerRadius="6"
+                            Clicked="OnViewPendingChangesClicked"
+                            IsVisible="{Binding HasPendingChanges}" />
+                    
+                    <Button Text="Clear Cache" 
+                            BackgroundColor="#F44336" 
+                            TextColor="White" 
+                            CornerRadius="6"
+                            Clicked="OnClearCacheClicked" />
+                    
+                    <Button Text="Feature Settings" 
+                            BackgroundColor="#9C27B0" 
+                            TextColor="White" 
+                            CornerRadius="6"
+                            Clicked="OnFeatureSettingsClicked" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Offline Mode Information -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="8" 
+                   Padding="16" 
+                   HasShadow="False"
+                   IsVisible="{Binding IsOnline, Converter={StaticResource InvertedBoolConverter}}">
+                <StackLayout Spacing="8">
+                    <Label Text="Offline Mode" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    
+                    <Label Text="You're currently offline. Any changes you make will be saved locally and synced when you reconnect to the internet." 
+                           FontSize="14" 
+                           TextColor="#CCCCCC" />
+                    
+                    <Label Text="• View and edit existing data" 
+                           FontSize="12" 
+                           TextColor="#CCCCCC" />
+                    <Label Text="• Add new transactions and accounts" 
+                           FontSize="12" 
+                           TextColor="#CCCCCC" />
+                    <Label Text="• Changes will sync automatically when online" 
+                           FontSize="12" 
+                           TextColor="#CCCCCC" />
+                </StackLayout>
+            </Frame>
+
+        </StackLayout>
+    </ScrollView>
+
+</ContentPage>

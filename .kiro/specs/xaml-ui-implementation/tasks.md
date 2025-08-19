@@ -68,9 +68,11 @@
   - Create prioritized goal layout with mobile-friendly card organization
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 9. Add offline support and sync indicators
-  - Implement offline detection service and UI status indicators in AppShell
-  - Create sync status display showing pending changes and sync progress
+- [x] 9. Add offline support and sync indicators
+  - Implement offline detection service (IConnectivityService) with real-time monitoring
+  - Create ConnectivityService implementation using MAUI networking APIs
+  - Add service registration in MauiProgram.cs for dependency injection
+  - Implement UI status indicators in AppShell with sync status display
   - Add offline data caching with visual indicators for cached vs. live data
   - Build conflict resolution dialogs using native MAUI DisplayAlert
   - Create offline mode notifications and user guidance

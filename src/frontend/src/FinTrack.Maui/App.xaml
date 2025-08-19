@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:FinTrack.Maui"
              xmlns:services="clr-namespace:FinTrack.Maui.Services"
+             xmlns:converters="clr-namespace:FinTrack.Maui.Converters"
              x:Class="FinTrack.Maui.App">
     <Application.Resources>
         <ResourceDictionary>
@@ -15,6 +16,7 @@
                     <services:AmountToColorConverter x:Key="AmountToColorConverter" />
                     <services:IsNotNullConverter x:Key="IsNotNullConverter" />
                     <services:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+                    <converters:InvertedBoolConverter x:Key="InvertedBoolConverter2" />
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
 

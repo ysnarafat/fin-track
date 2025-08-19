@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="FinTrack.Maui.Views.FeatureFlagsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Feature Flags"
+             BackgroundColor="#121212">
+
+    <ScrollView>
+        <StackLayout Padding="16" Spacing="16">
+            
+            <!-- Header -->
+            <StackLayout Spacing="5">
+                <Label Text="Feature Flags" 
+                       FontSize="32" 
+                       FontAttributes="Bold" 
+                       TextColor="White" />
+                <Label Text="Toggle application features on or off" 
+                       FontSize="16" 
+                       TextColor="#B0B0B0" />
+            </StackLayout>
+
+            <!-- Sync Features Section -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="8" 
+                   Padding="16" 
+                   HasShadow="False">
+                <StackLayout Spacing="16">
+                    <Label Text="Sync Features" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    
+                    <!-- Offline Sync Toggle -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Offline Sync" 
+                                   FontSize="16" 
+                                   TextColor="White" />
+                            <Label Text="Enable offline data synchronization" 
+                                   FontSize="12" 
+                                   TextColor="#CCCCCC" />
+                        </StackLayout>
+                        
+                        <Switch Grid.Column="1" 
+                                x:Name="OfflineSyncSwitch"
+                                Toggled="OnOfflineSyncToggled"
+                                VerticalOptions="Center" />
+                    </Grid>
+                    
+                    <!-- Sync Status Indicators Toggle -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Sync Status Indicators" 
+                                   FontSize="16" 
+                                   TextColor="White" />
+                            <Label Text="Show sync status in the app header and pages" 
+                                   FontSize="12" 
+                                   TextColor="#CCCCCC" />
+                        </StackLayout>
+                        
+                        <Switch Grid.Column="1" 
+                                x:Name="SyncIndicatorsSwitch"
+                                Toggled="OnSyncIndicatorsToggled"
+                                VerticalOptions="Center" />
+                    </Grid>
+                    
+                    <!-- Automatic Sync Toggle -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Automatic Sync" 
+                                   FontSize="16" 
+                                   TextColor="White" />
+                            <Label Text="Automatically sync data in the background" 
+                                   FontSize="12" 
+                                   TextColor="#CCCCCC" />
+                        </StackLayout>
+                        
+                        <Switch Grid.Column="1" 
+                                x:Name="AutoSyncSwitch"
+                                Toggled="OnAutoSyncToggled"
+                                VerticalOptions="Center" />
+                    </Grid>
+                    
+                    <!-- Conflict Resolution Toggle -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="Conflict Resolution" 
+                                   FontSize="16" 
+                                   TextColor="White" />
+                            <Label Text="Enable conflict resolution dialogs" 
+                                   FontSize="12" 
+                                   TextColor="#CCCCCC" />
+                        </StackLayout>
+                        
+                        <Switch Grid.Column="1" 
+                                x:Name="ConflictResolutionSwitch"
+                                Toggled="OnConflictResolutionToggled"
+                                VerticalOptions="Center" />
+                    </Grid>
+                </StackLayout>
+            </Frame>
+
+            <!-- Actions -->
+            <StackLayout Spacing="12">
+                <Button Text="Reset to Defaults" 
+                        BackgroundColor="#F44336" 
+                        TextColor="White" 
+                        CornerRadius="6"
+                        Clicked="OnResetToDefaultsClicked" />
+                
+                <Button Text="Apply Changes" 
+                        BackgroundColor="#4CAF50" 
+                        TextColor="White" 
+                        CornerRadius="6"
+                        Clicked="OnApplyChangesClicked" />
+            </StackLayout>
+
+            <!-- Info -->
+            <Frame BackgroundColor="#1E1E1E" 
+                   CornerRadius="8" 
+                   Padding="16" 
+                   HasShadow="False">
+                <StackLayout Spacing="8">
+                    <Label Text="ℹ️ Information" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="White" />
+                    
+                    <Label Text="• Changes take effect immediately" 
+                           FontSize="12" 
+                           TextColor="#CCCCCC" />
+                    <Label Text="• Feature flags are saved automatically" 
+                           FontSize="12" 
+                           TextColor="#CCCCCC" />
+                    <Label Text="• Disabling sync features may affect app functionality" 
+                           FontSize="12" 
+                           TextColor="#CCCCCC" />
+                </StackLayout>
+            </Frame>
+
+        </StackLayout>
+    </ScrollView>
+
+</ContentPage>

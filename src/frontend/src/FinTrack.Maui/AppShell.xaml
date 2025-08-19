@@ -4,9 +4,71 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:FinTrack.Maui.Views"
+    xmlns:viewmodels="clr-namespace:FinTrack.Maui.ViewModels"
     Title="FinTrack">
     <Shell.FlyoutBackgroundColor>#1E1E1E</Shell.FlyoutBackgroundColor>
     <Shell.TitleColor>White</Shell.TitleColor>
+    
+    <!-- Sync Status Header -->
+    <Shell.TitleView>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
+            <Label Grid.Column="0" 
+                   Text="FinTrack" 
+                   FontSize="18" 
+                   FontAttributes="Bold" 
+                   TextColor="White" 
+                   VerticalOptions="Center" />
+            
+            <StackLayout Grid.Column="1" 
+                         Orientation="Horizontal" 
+                         Spacing="8" 
+                         VerticalOptions="Center">
+                
+                <!-- Sync Status Indicator -->
+                <Border BackgroundColor="Transparent" 
+                       Padding="8,4"
+                       x:Name="SyncStatusFrame"
+                       IsVisible="{Binding AreSyncIndicatorsEnabled}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSyncStatusTapped" />
+                    </Border.GestureRecognizers>
+                    
+                    <StackLayout Orientation="Horizontal" Spacing="4">
+                        <Label x:Name="SyncStatusIcon"
+                               Text="●" 
+                               FontSize="12" 
+                               TextColor="{Binding StatusColor}"
+                               VerticalOptions="Center" />
+                        
+                        <Label x:Name="SyncStatusText"
+                               Text="{Binding StatusText}" 
+                               FontSize="12" 
+                               TextColor="White" 
+                               VerticalOptions="Center" />
+                        
+                        <!-- Pending changes indicator -->
+                        <Border x:Name="PendingChangesIndicator"
+                               BackgroundColor="Orange"
+                               WidthRequest="16"
+                               HeightRequest="16"
+                               Padding="0"
+                               IsVisible="{Binding HasPendingChanges}">
+                            <Label Text="{Binding PendingChangesCount}"
+                                   FontSize="10"
+                                   TextColor="White"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
+                        </Border>
+                    </StackLayout>
+                </Border>
+            </StackLayout>
+        </Grid>
+    </Shell.TitleView>
     <TabBar>
         <!-- Dashboard Tab -->
         <ShellContent

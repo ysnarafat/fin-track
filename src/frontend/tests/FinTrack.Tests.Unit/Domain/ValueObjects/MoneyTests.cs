@@ -30,7 +30,6 @@ public class MoneyTests
     }
 
     [Theory]
-    [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
     public void Constructor_WithInvalidCurrency_ShouldThrowException(string currency)
@@ -203,5 +202,12 @@ public class MoneyTests
 
         // Assert
         Assert.Equal("100.50 USD", result);
+    }
+
+    [Fact]
+    public void Constructor_WithNullCurrency_ShouldThrowException()
+    {
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => new Money(100m, null!));
     }
 }
