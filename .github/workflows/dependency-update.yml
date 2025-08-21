@@ -1,5 +1,9 @@
 name: Dependency Update
 
+permissions:
+  contents: read
+  pull-requests: write
+
 on:
   schedule:
     # Run every Monday at 9 AM UTC
