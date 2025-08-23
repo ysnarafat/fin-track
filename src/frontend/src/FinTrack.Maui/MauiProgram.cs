@@ -1,4 +1,3 @@
-using FinTrack.Maui.Data;
 using FinTrack.Maui.Services;
 using Microsoft.Extensions.Logging;
 
@@ -24,7 +23,6 @@ public static class MauiProgram
         // Register Services
         builder.Services.AddSingleton<ITransactionService, TransactionService>();
         builder.Services.AddSingleton<IBudgetService, BudgetService>();
-        builder.Services.AddSingleton<WeatherForecastService>();
 
         // Register ViewModels
         builder.Services.AddTransient<ViewModels.TransactionsViewModel>();
