@@ -9,8 +9,8 @@
 
 - [x] 2. Implement XAML navigation system with AppShell
   - Create AppShell.xaml with tab-based navigation structure
-  - Implement navigation routing for all main pages (Dashboard, Accounts, Transactions, Reports)
-  - Add modal navigation support for forms and detail pages
+  - Implement navigation routing for all main pages (Dashboard, Accounts, Transactions, Reports, Budgets)
+  - Add modal navigation support for forms and detail pages (TransactionForm, BudgetForm)
   - Create consistent navigation styling with dark theme
   - _Requirements: 1.1, 1.2, 2.1_
 
@@ -48,27 +48,33 @@
   - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
 - [x] 7. Implement budget management interface
-
-
-
-
-
-  - Create budget overview page with XAML controls for budget tracking
-  - Implement budget cards with ProgressBar for spending vs. budget limits
-  - Build budget creation form with Entry and Picker controls
+  - Create BudgetsPage.xaml with budget overview and budget cards
+  - Implement BudgetFormPage.xaml for budget creation and editing
+  - Build budget progress visualization with ProgressBar controls
   - Add budget alerts and notifications using native MAUI alerts
   - Create visual budget status indicators with color coding
-  - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - Integrate with BudgetsViewModel and BudgetFormViewModel
+  - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-- [ ] 8. Implement financial goals tracking interface
-  - Create goal cards with progress visualization using ProgressBar controls
-  - Build goal creation wizard with multi-step form navigation
-  - Implement milestone tracking with timeline visualization
+- [ ] 8. Create Budget domain entity and services
+  - Create Budget entity in FinTrack.Core with proper relationships to Category
+  - Implement IBudgetRepository interface and repository implementation
+  - Create BudgetService in FinTrack.Shared for business logic
+  - Add Budget entity configuration for Entity Framework
+  - Create database migration for Budget table
+  - Update IBudgetService interface to match ViewModels expectations
+  - _Requirements: 5.1, 5.2, 5.3, 5.4_
+
+- [ ] 9. Implement financial goals tracking interface
+  - Create Goal entity in FinTrack.Core with milestone tracking
+  - Implement GoalsPage.xaml with goal cards and progress visualization
+  - Build GoalFormPage.xaml for goal creation wizard with multi-step navigation
+  - Create GoalsViewModel and GoalFormViewModel for data binding
   - Add goal achievement celebrations with animations
-  - Create prioritized goal layout with mobile-friendly card organization
+  - Implement goal repository and service layers
   - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 9. Add offline support and sync indicators
+- [ ] 10. Add offline support and sync indicators
   - Implement offline detection service and UI status indicators in AppShell
   - Create sync status display showing pending changes and sync progress
   - Add offline data caching with visual indicators for cached vs. live data
@@ -76,7 +82,7 @@
   - Create offline mode notifications and user guidance
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 10. Create shared XAML components and utilities
+- [ ] 11. Create shared XAML components and utilities
   - Implement loading indicators using ActivityIndicator for consistent loading states
   - Create empty state templates with friendly messages and illustrations
   - Build error handling with native DisplayAlert for error messages
@@ -84,7 +90,7 @@
   - Create currency formatting converters for proper value display
   - _Requirements: 2.2, 2.3_
 
-- [ ] 11. Implement accessibility and mobile optimization
+- [ ] 12. Implement accessibility and mobile optimization
   - Add WCAG 2.1 AA compliance features including proper ARIA labels and keyboard navigation
   - Implement minimum 44px touch targets for all interactive elements
   - Create responsive typography scaling for different screen sizes
@@ -92,15 +98,15 @@
   - Implement screen reader support for all components
   - _Requirements: 1.3, 2.4_
 
-- [ ] 12. Add performance optimizations and testing
-  - Implement lazy loading for components and data using MudVirtualize for large lists
+- [ ] 13. Add performance optimizations and testing
+  - Implement lazy loading for components and data using CollectionView virtualization for large lists
   - Add component virtualization for transaction and account lists
   - Create performance monitoring for mobile load times and memory usage
   - Implement bundle optimization and tree shaking for reduced app size
   - Add responsive image handling for different screen densities
   - _Requirements: 1.4, 2.1_
 
-- [ ] 13. Create comprehensive XAML UI testing suite
+- [ ] 14. Create comprehensive XAML UI testing suite
   - Write unit tests for ViewModels and data binding logic
   - Create UI tests for page navigation and user interactions
   - Add visual regression tests for UI consistency across platforms
@@ -108,7 +114,7 @@
   - Create mobile-specific tests for touch interactions and responsive behavior
   - _Requirements: 2.4, 1.1_
 
-- [ ] 14. Integrate theme system and customization
+- [ ] 15. Integrate theme system and customization
   - Create theme service for dynamic theme switching between light and dark modes
   - Implement user preference storage for theme and layout settings
   - Add custom color scheme options for personalization
@@ -116,7 +122,7 @@
   - Implement consistent theming across all components and pages
   - _Requirements: 2.1, 2.2_
 
-- [ ] 15. Final integration and cross-platform testing 
+- [ ] 16. Final integration and cross-platform testing 
   - Test all components across Android, iOS, macOS, and Windows platforms
   - Verify responsive behavior on different screen sizes and orientations
   - Validate touch interactions and gesture support on mobile devices
