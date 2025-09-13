@@ -39,7 +39,6 @@ public static class MauiProgram
         builder.Services.AddSingleton<ITransactionService, TransactionService>();
         builder.Services.AddSingleton<IBudgetService, BudgetService>();
         builder.Services.AddSingleton<IGoalService, GoalService>();
-        builder.Services.AddSingleton<WeatherForecastService>();
         
         // Register Sync and Connectivity Services
         builder.Services.AddSingleton<FinTrack.Core.Interfaces.IFeatureFlagService, FinTrack.Maui.Services.FeatureFlagService>();
@@ -70,6 +69,8 @@ public static class MauiProgram
         
         // Register AppShell
         builder.Services.AddSingleton<AppShell>();
+
+
 
 
 

@@ -281,6 +281,29 @@ var updated = metadata.MarkAsModified(deviceId);
 
 ## 🔌 Service Architecture
 
+### Application Startup & Initialization
+
+The application follows a clean startup process with proper dependency injection and database initialization:
+
+1. **MauiProgram.cs**: Configures services, registers dependencies, and sets up Entity Framework with SQLite
+2. **App.xaml.cs**: Handles application lifecycle and database initialization on startup
+3. **AppShell**: Provides navigation structure and sync status integration
+
+#### Database Initialization Flow
+```csharp
+// On app startup (App.OnStart)
+├── Get DatabaseService from DI container
+├── Initialize SQLite database with migrations
+├── Seed default data (categories, accounts)
+└── Handle initialization errors gracefully (log but don't crash)
+```
+
+The database initialization is handled automatically on application start through the `DatabaseService`, which:
+- Creates the SQLite database if it doesn't exist
+- Applies any pending Entity Framework migrations
+- Seeds default categories and account types
+- Optionally creates sample data for development/testing
+
 ### Repository Pattern
 Generic `IRepository<T>` interface provides:
 - Basic CRUD operations with async/await
@@ -295,6 +318,7 @@ Generic `IRepository<T>` interface provides:
 - **SyncService**: Data synchronization coordination
 - **ConnectivityService**: Network connectivity monitoring
 - **FeatureFlagService**: Runtime feature flag management and toggling
+- **DatabaseService**: Database initialization, migrations, and data seeding
 
 ## 🧪 Testing
 
@@ -331,6 +355,46 @@ The project includes comprehensive testing with proper isolation and dedicated t
 - **Platform Testing**: Integration tests verify platform-specific behavior
 - **Interface Consistency**: Test helpers reference actual Core interfaces for type safety
 
+## 🔄 Application Lifecycle
+
+### Startup Process
+
+The application follows a robust startup sequence with proper error handling:
+
+1. **MauiProgram.CreateMauiApp()**: 
+   - Configures fonts and logging
+   - Registers all services with dependency injection
+   - Sets up Entity Framework with SQLite database
+
+2. **App Constructor**: 
+   - Receives AppShell via dependency injection
+   - Sets MainPage to AppShell for navigation
+
+3. **App.OnStart()**: 
+   - Automatically initializes database on application start
+   - Handles initialization errors gracefully (logs but doesn't crash)
+   - Uses scoped service provider for proper resource management
+
+> 📖 **Detailed Documentation**: For comprehensive startup process details, see [Application Startup & Lifecycle](docs/APPLICATION_STARTUP.md)
+
+### Error Handling Strategy
+
+The application implements defensive error handling throughout:
+
+- **Database Initialization**: Errors are logged but don't prevent app startup
+- **Service Resolution**: Uses safe service provider access with null checks
+- **Resource Management**: Proper disposal of scoped services and database contexts
+- **Graceful Degradation**: App continues to function even if some services fail to initialize
+
+### Database Management
+
+The `DatabaseService` provides comprehensive database management:
+- **Automatic Migration**: Applies Entity Framework migrations on startup
+- **Data Seeding**: Creates default categories and accounts if needed
+- **Sample Data**: Optional sample data creation for development/testing
+- **Integrity Validation**: Checks database structure and connectivity
+- **Recreate Capability**: Development feature to reset database with fresh data
+
 ## 🚀 Development Workflow
 
 ### Code Style & Conventions
@@ -341,10 +405,38 @@ The project includes comprehensive testing with proper isolation and dedicated t
 - **File-scoped namespaces** for new files
 
 ### Dependency Injection
+
 Services are registered in `MauiProgram.cs` with appropriate lifetimes:
-- **Singleton**: Stateless services (ConnectivityService, SyncService, FeatureFlagService)
-- **Transient**: ViewModels and Pages
-- **Scoped**: Database contexts and repositories
+
+#### Service Lifetimes
+- **Singleton**: Stateless services and shared state
+  - `IConnectivityService`: Network connectivity monitoring
+  - `ISyncService`: Data synchronization coordination  
+  - `IFeatureFlagService`: Runtime feature flag management
+  - `SyncStatusViewModel`: Shared sync status across the app
+  - `AppShell`: Navigation shell instance
+  - Application services (TransactionService, BudgetService, GoalService)
+
+- **Transient**: Per-request instances
+  - ViewModels (except SyncStatusViewModel)
+  - Pages and Views
+  - Form ViewModels for data entry
+
+- **Scoped**: Per-operation lifetime
+  - `FinTrackDbContext`: Entity Framework database context
+  - `DatabaseService`: Database operations and initialization
+
+#### Database Configuration
+```csharp
+// SQLite database path: {AppDataDirectory}/fintrack.db
+builder.Services.AddDbContext<FinTrackDbContext>(options =>
+    options.UseSqlite($"Data Source={dbPath}")
+#if DEBUG
+           .EnableSensitiveDataLogging()
+           .EnableDetailedErrors()
+#endif
+);
+```
 
 ## 📄 License
 

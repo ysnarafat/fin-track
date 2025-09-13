@@ -14,6 +14,7 @@ Welcome to the FinTrack documentation. This section provides comprehensive infor
 - [Technology Stack](../README.md#-technology-stack) - Technologies and frameworks used
 - [Project Structure](../README.md#project-structure) - Code organization and conventions
 - [Building and Running](../README.md#-getting-started) - Build and deployment instructions
+- [Application Startup](APPLICATION_STARTUP.md) - Detailed startup process, service registration, and lifecycle management
 - [Sync Architecture](sync-architecture.md) - Detailed synchronization system documentation
 - [Testing Strategy](testing-strategy.md) - Comprehensive testing approach and utilities
 - [Value Objects](value-objects.md) - Domain value objects (Money, DateRange, SyncMetadata)
