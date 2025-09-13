@@ -163,16 +163,7 @@ public class TransactionSummary
     public DateTime EndDate { get; set; }
 }
 
-/// <summary>
-/// Represents spending analysis for a category
-/// </summary>
-public class CategorySpending
-{
-    public Category Category { get; set; } = null!;
-    public decimal Amount { get; set; }
-    public int TransactionCount { get; set; }
-    public decimal Percentage { get; set; }
-}
+
 
 /// <summary>
 /// Represents monthly spending data

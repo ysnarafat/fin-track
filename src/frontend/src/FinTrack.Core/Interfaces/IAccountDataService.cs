@@ -131,19 +131,7 @@ public interface IAccountDataService : IDataService<Account>
     Task<ValidationResult> ValidateAccountAsync(Account account, bool isUpdate = false);
 }
 
-/// <summary>
-/// Represents an account summary with basic statistics
-/// </summary>
-public class AccountSummary
-{
-    public Account Account { get; set; } = null!;
-    public decimal CurrentBalance { get; set; }
-    public decimal AvailableBalance { get; set; }
-    public int TransactionCount { get; set; }
-    public DateTime? LastTransactionDate { get; set; }
-    public decimal MonthlyIncome { get; set; }
-    public decimal MonthlyExpenses { get; set; }
-}
+
 
 /// <summary>
 /// Represents a point in account balance history

@@ -21,136 +21,118 @@ public interface IAccountRepository : IRepository<Account>
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Collection of active accounts</returns>
-    Task<IEnumerable<Account>> GetActiveAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<Account>> GetActiveAccountsAsync(CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Gets accounts by currency
+    /// Gets accounts with their recent transactions
     /// </summary>
-    /// <param name="currency">Currency code (e.g., USD, EUR)</param>
+    /// <param name="transactionCount">Number of recent transactions to include</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Collection of accounts with the specified currency</returns>
-    Task<IEnumerable<Account>> GetByCurrencyAsync(string currency, CancellationToken cancellationToken = default);
+    /// <returns>Collection of accounts with recent transactions</returns>
+    Task<IEnumerable<Account>> GetWithRecentTransactionsAsync(int transactionCount = 5, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Gets accounts by institution
+    /// Calculates the current balance for an account based on transactions
     /// </summary>
-    /// <param name="institution">Institution name</param>
+    /// <param name="accountId">Account ID</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Collection of accounts from the specified institution</returns>
-    Task<IEnumerable<Account>> GetByInstitutionAsync(string institution, CancellationToken cancellationToken = default);
+    /// <returns>Calculated balance</returns>
+    Task<decimal> CalculateBalanceAsync(int accountId, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Gets account by account number
+    /// Updates account balance and marks as modified
     /// </summary>
-    /// <param name="accountNumber">Account number</param>
+    /// <param name="accountId">Account ID</param>
+    /// <param name="newBalance">New balance amount</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Account if found, null otherwise</returns>
-    Task<Account?> GetByAccountNumberAsync(string accountNumber, CancellationToken cancellationToken = default);
+    /// <returns>True if updated successfully</returns>
+    Task<bool> UpdateBalanceAsync(int accountId, decimal newBalance, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Gets accounts with low balance (below specified threshold)
+    /// Gets account balance history for a date range
     /// </summary>
-    /// <param name="threshold">Balance threshold</param>
+    /// <param name="accountId">Account ID</param>
+    /// <param name="startDate">Start date</param>
+    /// <param name="endDate">End date</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Collection of accounts with balance below threshold</returns>
-    Task<IEnumerable<Account>> GetLowBalanceAccountsAsync(decimal threshold, CancellationToken cancellationToken = default);
+    /// <returns>Dictionary of date to balance amount</returns>
+    Task<Dictionary<DateTime, decimal>> GetBalanceHistoryAsync(int accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Gets overdrawn accounts
+    /// Gets accounts that are overdrawn or over credit limit
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Collection of overdrawn accounts</returns>
     Task<IEnumerable<Account>> GetOverdrawnAccountsAsync(CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Gets accounts with transactions in a date range
+    /// Gets total net worth (sum of all account balances considering account types)
     /// </summary>
-    /// <param name="startDate">Start date (inclusive)</param>
-    /// <param name="endDate">End date (inclusive)</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Collection of accounts with transactions in the date range</returns>
-    Task<IEnumerable<Account>> GetAccountsWithTransactionsAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    /// <returns>Total net worth</returns>
+    Task<decimal> GetTotalNetWorthAsync(CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Calculates total balance across all accounts
+    /// Gets total assets (positive balance accounts)
     /// </summary>
-    /// <param name="accountType">Optional account type to filter by</param>
-    /// <param name="currency">Optional currency to filter by</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Total balance</returns>
-    Task<decimal> CalculateTotalBalanceAsync(AccountType? accountType = null, string? currency = null, CancellationToken cancellationToken = default);
+    /// <returns>Total assets amount</returns>
+    Task<decimal> GetTotalAssetsAsync(CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Calculates net worth (assets minus liabilities)
-    /// </summary>
-    /// <param name="currency">Optional currency to filter by</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Net worth amount</returns>
-    Task<decimal> CalculateNetWorthAsync(string? currency = null, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Gets account balance history for a specific period
-    /// </summary>
-    /// <param name="accountId">Account ID</param>
-    /// <param name="startDate">Start date (inclusive)</param>
-    /// <param name="endDate">End date (inclusive)</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Dictionary of date to balance amount</returns>
-    Task<Dictionary<DateTime, decimal>> GetBalanceHistoryAsync(int accountId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Updates account balance by applying a transaction amount
-    /// </summary>
-    /// <param name="accountId">Account ID</param>
-    /// <param name="amount">Amount to add/subtract from balance</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Updated account</returns>
-    Task<Account?> UpdateBalanceAsync(int accountId, decimal amount, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Bulk updates account balances
-    /// </summary>
-    /// <param name="balanceUpdates">Dictionary of account ID to balance change amount</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Number of accounts updated</returns>
-    Task<int> BulkUpdateBalancesAsync(Dictionary<int, decimal> balanceUpdates, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Gets accounts summary with basic statistics
+    /// Gets total liabilities (negative balance accounts and credit card debt)
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Dictionary containing account statistics</returns>
-    Task<Dictionary<string, object>> GetAccountsSummaryAsync(CancellationToken cancellationToken = default);
+    /// <returns>Total liabilities amount</returns>
+    Task<decimal> GetTotalLiabilitiesAsync(CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Searches accounts by name or institution
     /// </summary>
     /// <param name="searchTerm">Search term</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Collection of accounts matching the search term</returns>
+    /// <returns>Collection of matching accounts</returns>
     Task<IEnumerable<Account>> SearchAsync(string searchTerm, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Gets accounts ordered by balance (descending by default)
-    /// </summary>
-    /// <param name="ascending">True for ascending order, false for descending</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Collection of accounts ordered by balance</returns>
-    Task<IEnumerable<Account>> GetOrderedByBalanceAsync(bool ascending = false, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Validates account balance against transaction history
+    /// Gets account summary with transaction counts and date ranges
     /// </summary>
     /// <param name="accountId">Account ID</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>True if balance is correct, false if there's a discrepancy</returns>
-    Task<bool> ValidateBalanceAsync(int accountId, CancellationToken cancellationToken = default);
+    /// <returns>Account summary information</returns>
+    Task<AccountSummary?> GetAccountSummaryAsync(int accountId, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Recalculates account balance from transaction history
+    /// Gets an account by name
     /// </summary>
-    /// <param name="accountId">Account ID</param>
+    /// <param name="name">Account name</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Recalculated balance amount</returns>
-    Task<decimal> RecalculateBalanceAsync(int accountId, CancellationToken cancellationToken = default);
+    /// <returns>Account if found, null otherwise</returns>
+    Task<Account?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Gets a transaction by ID
+    /// </summary>
+    /// <param name="transactionId">Transaction ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Transaction if found, null otherwise</returns>
+    Task<Transaction?> GetTransactionByIdAsync(int transactionId, CancellationToken cancellationToken = default);
+}
+
+/// <summary>
+/// Summary information for an account
+/// </summary>
+public class AccountSummary
+{
+    public int AccountId { get; set; }
+    public string AccountName { get; set; } = string.Empty;
+    public decimal CurrentBalance { get; set; }
+    public decimal AvailableBalance { get; set; }
+    public int TransactionCount { get; set; }
+    public DateTime? LastTransactionDate { get; set; }
+    public DateTime? FirstTransactionDate { get; set; }
+    public decimal MonthToDateIncome { get; set; }
+    public decimal MonthToDateExpenses { get; set; }
+    public decimal YearToDateIncome { get; set; }
+    public decimal YearToDateExpenses { get; set; }
 }

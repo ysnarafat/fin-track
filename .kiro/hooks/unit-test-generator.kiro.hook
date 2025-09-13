@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Unit Test Generator",
+  "description": "Automatically writes unit tests for new or edited implementations in the FinTrack solution",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/frontend/src/**/*.cs",
+      "!src/frontend/tests/**/*.cs",
+      "!**/*Test*.cs",
+      "!**/*Tests.cs"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A C# implementation file has been created or modified. Please analyze the code and generate comprehensive unit tests for it. Follow these guidelines:\n\n1. Create tests in the appropriate test project (FinTrack.Tests.Unit for unit tests)\n2. Use xUnit testing framework with appropriate assertions\n3. Test all public methods and properties\n4. Include edge cases, error conditions, and boundary value testing\n5. Mock dependencies using Moq framework where appropriate\n6. Follow AAA pattern (Arrange, Act, Assert)\n7. Use descriptive test method names that explain what is being tested\n8. Ensure tests are isolated and don't depend on external resources\n9. For ViewModels, test command execution and property change notifications\n10. For Services, test business logic and error handling\n11. For Repositories, test CRUD operations and query logic\n\nGenerate the complete test file with proper namespace, using statements, and test class structure. Include setup methods for common test data if needed."
+  }
+}

@@ -179,4 +179,11 @@ public interface IRepository<T> where T : BaseEntity
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Number of entities updated</returns>
     Task<int> MarkAsConflictedAsync(IEnumerable<string> syncIds, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Saves all changes to the database
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Number of entities affected</returns>
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

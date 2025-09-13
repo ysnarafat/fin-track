@@ -1,6 +1,5 @@
 using FinTrack.Core.Enums;
-
-namespace FinTrack.Core.Entities;
+using System.ComponentModel.DataAnnotations;
 
 /// <summary>
 /// Base entity class that provides common properties for all domain entities
@@ -35,6 +34,8 @@ public abstract class BaseEntity
     /// <summary>
     /// Unique identifier used for synchronization across devices
     /// </summary>
+    [Required]
+    [StringLength(36)]
     public string SyncId { get; set; } = string.Empty;
     
     /// <summary>
@@ -50,6 +51,7 @@ public abstract class BaseEntity
     /// <summary>
     /// Device identifier where the entity was last modified
     /// </summary>
+    [StringLength(100)]
     public string? LastModifiedBy { get; set; }
     
     /// <summary>

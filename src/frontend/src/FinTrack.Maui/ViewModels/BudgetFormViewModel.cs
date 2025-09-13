@@ -222,7 +222,7 @@ public class BudgetFormViewModel : INotifyPropertyChanged, IQueryAttributable
         {
             IsSaving = true;
             
-            var budget = new Budget
+            var budget = new BudgetModel
             {
                 Id = _budgetId ?? 0,
                 Name = Name.Trim(),
