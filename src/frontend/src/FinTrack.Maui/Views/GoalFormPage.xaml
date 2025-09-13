@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="FinTrack.Maui.Views.GoalFormPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:FinTrack.Maui.Models"
+             xmlns:system="clr-namespace:System;assembly=netstandard"
+             Title="{Binding Title}"
+             BackgroundColor="#121212">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Styles -->
+            <Style x:Key="CardBorderStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="#1E1E1E" />
+                <Setter Property="Stroke" Value="#333333" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+                <Setter Property="Padding" Value="16" />
+                <Setter Property="Margin" Value="16,8,16,8" />
+            </Style>
+
+            <Style x:Key="StepCardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="#1E1E1E" />
+                <Setter Property="Stroke" Value="#3B82F6" />
+                <Setter Property="StrokeThickness" Value="2" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+                <Setter Property="Padding" Value="16" />
+                <Setter Property="Margin" Value="16,8,16,8" />
+            </Style>
+
+            <Style x:Key="TitleLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="White" />
+            </Style>
+
+            <Style x:Key="SubtitleLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="TextColor" Value="#B0B0B0" />
+            </Style>
+
+            <Style x:Key="LabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="Margin" Value="0,8,0,4" />
+            </Style>
+
+            <Style x:Key="EntryStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="#2D2D2D" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="PlaceholderColor" Value="#B0B0B0" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+
+            <Style x:Key="PickerStyle" TargetType="Picker">
+                <Setter Property="BackgroundColor" Value="#2D2D2D" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="TitleColor" Value="#B0B0B0" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+
+            <Style x:Key="DatePickerStyle" TargetType="DatePicker">
+                <Setter Property="BackgroundColor" Value="#2D2D2D" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+
+            <Style x:Key="MilestoneCardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="#2D2D2D" />
+                <Setter Property="Stroke" Value="#444444" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+                <Setter Property="Padding" Value="12" />
+                <Setter Property="Margin" Value="0,4,0,4" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <StackLayout Spacing="0">
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsVisible="{Binding IsLoading}"
+                               IsRunning="{Binding IsLoading}"
+                               Color="White"
+                               Margin="0,20" />
+
+            <!-- Step Progress Indicator -->
+            <Border Style="{StaticResource StepCardStyle}">
+                <StackLayout Spacing="8">
+                    <Label Text="{Binding StepTitle}"
+                           Style="{StaticResource TitleLabelStyle}" />
+                    <Label Text="{Binding StepDescription}"
+                           Style="{StaticResource SubtitleLabelStyle}" />
+                    
+                    <!-- Step Indicators -->
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="0,8,0,0">
+                        <Border Grid.Column="0"
+                                BackgroundColor="{Binding IsStep1, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#3B82F6|#444444'}"
+                                HeightRequest="4"
+                                StrokeShape="RoundRectangle 2"
+                                Stroke="Transparent" />
+                        <Border Grid.Column="1"
+                                BackgroundColor="{Binding IsStep2, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#3B82F6|#444444'}"
+                                HeightRequest="4"
+                                StrokeShape="RoundRectangle 2"
+                                Stroke="Transparent" />
+                        <Border Grid.Column="2"
+                                BackgroundColor="{Binding IsStep3, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#3B82F6|#444444'}"
+                                HeightRequest="4"
+                                StrokeShape="RoundRectangle 2"
+                                Stroke="Transparent" />
+                    </Grid>
+                </StackLayout>
+            </Border>
+
+            <!-- Step 1: Goal Details -->
+            <Border Style="{StaticResource CardBorderStyle}"
+                    IsVisible="{Binding IsStep1}">
+                <StackLayout Spacing="8">
+                    <Label Text="Goal Name *" Style="{StaticResource LabelStyle}" />
+                    <Entry Text="{Binding Name}"
+                           Placeholder="e.g., Emergency Fund, Dream Vacation"
+                           Style="{StaticResource EntryStyle}" />
+
+                    <Label Text="Description" Style="{StaticResource LabelStyle}" />
+                    <Entry Text="{Binding Description}"
+                           Placeholder="What is this goal for?"
+                           Style="{StaticResource EntryStyle}" />
+
+                    <Label Text="Target Amount *" Style="{StaticResource LabelStyle}" />
+                    <Entry Text="{Binding TargetAmount}"
+                           Placeholder="0.00"
+                           Keyboard="Numeric"
+                           Style="{StaticResource EntryStyle}" />
+
+                    <Label Text="Current Amount" Style="{StaticResource LabelStyle}" />
+                    <Entry Text="{Binding CurrentAmount}"
+                           Placeholder="0.00"
+                           Keyboard="Numeric"
+                           Style="{StaticResource EntryStyle}" />
+
+                    <Label Text="Category" Style="{StaticResource LabelStyle}" />
+                    <Picker ItemsSource="{Binding CategoryOptions}"
+                            SelectedItem="{Binding Category}"
+                            Title="Select Category"
+                            Style="{StaticResource PickerStyle}" />
+                </StackLayout>
+            </Border>
+
+            <!-- Step 2: Timeline & Priority -->
+            <Border Style="{StaticResource CardBorderStyle}"
+                    IsVisible="{Binding IsStep2}">
+                <StackLayout Spacing="8">
+                    <Label Text="Target Date *" Style="{StaticResource LabelStyle}" />
+                    <DatePicker Date="{Binding TargetDate}"
+                                MinimumDate="{x:Static system:DateTime.Today}"
+                                Style="{StaticResource DatePickerStyle}" />
+
+                    <Label Text="Priority" Style="{StaticResource LabelStyle}" />
+                    <Picker ItemsSource="{Binding PriorityOptions}"
+                            SelectedIndex="{Binding Priority, Converter={StaticResource IndexConverter}}"
+                            Title="Select Priority"
+                            Style="{StaticResource PickerStyle}" />
+
+                    <Label Text="Color Theme" Style="{StaticResource LabelStyle}" />
+                    <CollectionView ItemsSource="{Binding ColorOptions}"
+                                    ItemsLayout="HorizontalList"
+                                    SelectedItem="{Binding Color}"
+                                    SelectionMode="Single">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BackgroundColor="{Binding .}"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        StrokeShape="RoundRectangle 20"
+                                        Stroke="White"
+                                        StrokeThickness="2"
+                                        Margin="4">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectColorCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </Border>
+
+            <!-- Step 3: Milestones -->
+            <Border Style="{StaticResource CardBorderStyle}"
+                    IsVisible="{Binding IsStep3}">
+                <StackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <Label Grid.Column="0"
+                               Text="Milestones (Optional)"
+                               Style="{StaticResource LabelStyle}" />
+                        <Button Grid.Column="1"
+                                Text="+ Add"
+                                BackgroundColor="#10B981"
+                                TextColor="White"
+                                FontSize="12"
+                                CornerRadius="4"
+                                Padding="8,4"
+                                Command="{Binding AddMilestoneCommand}" />
+                    </Grid>
+
+                    <Label Text="Break your goal into smaller, achievable milestones"
+                           Style="{StaticResource SubtitleLabelStyle}" />
+
+                    <CollectionView ItemsSource="{Binding Milestones}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:GoalMilestone">
+                                <Border Style="{StaticResource MilestoneCardStyle}">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" RowDefinitions="Auto,Auto" RowSpacing="4">
+                                        <Entry Grid.Row="0" Grid.Column="0"
+                                               Text="{Binding Name}"
+                                               Placeholder="Milestone name"
+                                               BackgroundColor="Transparent"
+                                               TextColor="White"
+                                               FontSize="14" />
+
+                                        <Button Grid.Row="0" Grid.Column="1"
+                                                Text="✕"
+                                                BackgroundColor="Transparent"
+                                                TextColor="#EF4444"
+                                                FontSize="14"
+                                                WidthRequest="30"
+                                                HeightRequest="30"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveMilestoneCommand}"
+                                                CommandParameter="{Binding .}" />
+
+                                        <Entry Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                               Text="{Binding TargetAmount}"
+                                               Placeholder="Target amount"
+                                               Keyboard="Numeric"
+                                               BackgroundColor="Transparent"
+                                               TextColor="White"
+                                               FontSize="12" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </Border>
+
+            <!-- Navigation Buttons -->
+            <Grid Margin="16" ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                <Button Grid.Column="0"
+                        Text="Previous"
+                        BackgroundColor="#6B7280"
+                        TextColor="White"
+                        CornerRadius="8"
+                        Padding="16,12"
+                        Command="{Binding PreviousStepCommand}"
+                        IsVisible="{Binding CurrentStep, Converter={StaticResource IntToBoolConverter}, ConverterParameter='&gt;1'}" />
+
+                <Button Grid.Column="1"
+                        Text="Next"
+                        BackgroundColor="#3B82F6"
+                        TextColor="White"
+                        CornerRadius="8"
+                        Padding="16,12"
+                        Command="{Binding NextStepCommand}"
+                        IsVisible="{Binding CurrentStep, Converter={StaticResource IntToBoolConverter}, ConverterParameter='&lt;3'}" />
+
+                <Button Grid.Column="2"
+                        Text="{Binding IsEditMode, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Update Goal|Create Goal'}"
+                        BackgroundColor="#10B981"
+                        TextColor="White"
+                        CornerRadius="8"
+                        Padding="16,12"
+                        Command="{Binding SaveCommand}"
+                        IsVisible="{Binding IsStep3}" />
+            </Grid>
+
+            <!-- Cancel Button -->
+            <Button Text="Cancel"
+                    BackgroundColor="Transparent"
+                    TextColor="#B0B0B0"
+                    FontSize="14"
+                    Margin="16,0,16,16"
+                    Command="{Binding CancelCommand}" />
+
+            <!-- Bottom Spacing -->
+            <BoxView HeightRequest="32" Color="Transparent" />
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
