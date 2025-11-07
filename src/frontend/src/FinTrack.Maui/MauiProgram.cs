@@ -26,6 +26,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<IBudgetService, BudgetService>();
         builder.Services.AddSingleton<IGoalService, GoalService>();
         builder.Services.AddSingleton<WeatherForecastService>();
+        
+        // Register Sync and Connectivity Services
+        builder.Services.AddSingleton<FinTrack.Core.Interfaces.IFeatureFlagService, FinTrack.Maui.Services.FeatureFlagService>();
+        builder.Services.AddSingleton<FinTrack.Core.Interfaces.IConnectivityService, FinTrack.Maui.Services.ConnectivityService>();
+        builder.Services.AddSingleton<FinTrack.Core.Interfaces.ISyncService, FinTrack.Shared.Services.SyncService>();
 
         // Register ViewModels
         builder.Services.AddTransient<ViewModels.TransactionsViewModel>();
@@ -34,6 +39,7 @@ public static class MauiProgram
         builder.Services.AddTransient<ViewModels.BudgetFormViewModel>();
         builder.Services.AddTransient<ViewModels.GoalsViewModel>();
         builder.Services.AddTransient<ViewModels.GoalFormViewModel>();
+        builder.Services.AddSingleton<ViewModels.SyncStatusViewModel>();
 
         // Register Pages
         builder.Services.AddTransient<Views.DashboardPage>();
@@ -45,6 +51,11 @@ public static class MauiProgram
         builder.Services.AddTransient<Views.BudgetFormPage>();
         builder.Services.AddTransient<Views.GoalsPage>();
         builder.Services.AddTransient<Views.GoalFormPage>();
+        builder.Services.AddTransient<Views.SyncStatusPage>();
+        builder.Services.AddTransient<Views.FeatureFlagsPage>();
+        
+        // Register AppShell
+        builder.Services.AddSingleton<AppShell>();
 
         return builder.Build();
     }

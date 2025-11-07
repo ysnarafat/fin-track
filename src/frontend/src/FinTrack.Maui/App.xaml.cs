@@ -2,11 +2,11 @@
 
 public partial class App : Application
 {
-	public App()
+	public App(AppShell appShell)
 	{
 		InitializeComponent();
 
-		// Use AppShell for navigation
-		MainPage = new AppShell();
+		// Use AppShell for navigation with DI
+		MainPage = appShell;
 	}
 }
