@@ -1,5 +1,6 @@
-using FinTrack.Maui.Data;
+using FinTrack.Infrastructure.Data;
 using FinTrack.Maui.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FinTrack.Maui;
@@ -21,11 +22,23 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
+        // Configure Entity Framework
+        var dbPath = Path.Combine(FileSystem.AppDataDirectory, "fintrack.db");
+        builder.Services.AddDbContext<FinTrackDbContext>(options =>
+            options.UseSqlite($"Data Source={dbPath}")
+#if DEBUG
+                   .EnableSensitiveDataLogging()
+                   .EnableDetailedErrors()
+#endif
+                   );
+
+        // Register Infrastructure Services
+        builder.Services.AddScoped<FinTrack.Infrastructure.Services.DatabaseService>();
+
         // Register Services
         builder.Services.AddSingleton<ITransactionService, TransactionService>();
         builder.Services.AddSingleton<IBudgetService, BudgetService>();
         builder.Services.AddSingleton<IGoalService, GoalService>();
-        builder.Services.AddSingleton<WeatherForecastService>();
         
         // Register Sync and Connectivity Services
         builder.Services.AddSingleton<FinTrack.Core.Interfaces.IFeatureFlagService, FinTrack.Maui.Services.FeatureFlagService>();
@@ -56,6 +69,10 @@ public static class MauiProgram
         
         // Register AppShell
         builder.Services.AddSingleton<AppShell>();
+
+
+
+
 
         return builder.Build();
     }

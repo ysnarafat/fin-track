@@ -20,20 +20,20 @@ public class BudgetsViewModel : INotifyPropertyChanged
     public BudgetsViewModel(IBudgetService budgetService)
     {
         _budgetService = budgetService;
-        Budgets = new ObservableCollection<Budget>();
+        Budgets = new ObservableCollection<BudgetModel>();
         BudgetAlerts = new ObservableCollection<BudgetAlert>();
         
         LoadBudgetsCommand = new Command(async () => await LoadBudgetsAsync());
         RefreshCommand = new Command(async () => await RefreshAsync());
         AddBudgetCommand = new Command(async () => await AddBudgetAsync());
-        EditBudgetCommand = new Command<Budget>(async (budget) => await EditBudgetAsync(budget));
-        DeleteBudgetCommand = new Command<Budget>(async (budget) => await DeleteBudgetAsync(budget));
+        EditBudgetCommand = new Command<BudgetModel>(async (budget) => await EditBudgetAsync(budget));
+        DeleteBudgetCommand = new Command<BudgetModel>(async (budget) => await DeleteBudgetAsync(budget));
         DismissAlertCommand = new Command<BudgetAlert>(DismissAlert);
     }
     
     #region Properties
     
-    public ObservableCollection<Budget> Budgets { get; }
+    public ObservableCollection<BudgetModel> Budgets { get; }
     public ObservableCollection<BudgetAlert> BudgetAlerts { get; }
     
     public bool IsLoading
@@ -150,7 +150,7 @@ public class BudgetsViewModel : INotifyPropertyChanged
         }
     }
     
-    private async Task EditBudgetAsync(Budget budget)
+    private async Task EditBudgetAsync(BudgetModel budget)
     {
         if (budget == null) return;
         
@@ -164,7 +164,7 @@ public class BudgetsViewModel : INotifyPropertyChanged
         }
     }
     
-    private async Task DeleteBudgetAsync(Budget budget)
+    private async Task DeleteBudgetAsync(BudgetModel budget)
     {
         if (budget == null) return;
         

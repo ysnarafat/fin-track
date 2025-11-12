@@ -57,6 +57,12 @@ public class Category : BaseEntity
     /// </summary>
     public decimal? BudgetLimit { get; set; }
     
+    /// <summary>
+    /// Type of transactions this category is used for (Income, Expense)
+    /// </summary>
+    [Required]
+    public Core.Enums.TransactionType CategoryType { get; set; } = Core.Enums.TransactionType.Expense;
+    
     // Navigation properties
     
     /// <summary>
@@ -72,7 +78,12 @@ public class Category : BaseEntity
     /// <summary>
     /// Collection of child categories
     /// </summary>
-    public virtual ICollection<Category> SubCategories { get; set; } = new List<Category>();    
+    public virtual ICollection<Category> SubCategories { get; set; } = new List<Category>();
+    
+    /// <summary>
+    /// Collection of budgets associated with this category
+    /// </summary>
+    public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();    
     
 /// <summary>
     /// Constructor that initializes default values

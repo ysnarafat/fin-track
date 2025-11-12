@@ -219,7 +219,7 @@
                                 IsVisible="{Binding HasBudgets}"
                                 ItemSizingStrategy="MeasureAllItems">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:Budget">
+                            <DataTemplate x:DataType="models:BudgetModel">
                                 <Border Style="{StaticResource CardBorderStyle}">
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditBudgetCommand}"

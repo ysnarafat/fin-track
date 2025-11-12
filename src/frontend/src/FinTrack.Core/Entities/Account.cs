@@ -85,6 +85,11 @@ public class Account : BaseEntity
     public virtual ICollection<Transaction> IncomingTransfers { get; set; } = new List<Transaction>();
     
     /// <summary>
+    /// Collection of goals linked to this account
+    /// </summary>
+    public virtual ICollection<Goal> Goals { get; set; } = new List<Goal>();
+    
+    /// <summary>
     /// Constructor that initializes default values
     /// </summary>
     public Account()

@@ -1,3 +1,6 @@
+using FinTrack.Core.Enums;
+using System.ComponentModel.DataAnnotations;
+
 namespace FinTrack.Core.Entities;
 
 /// <summary>
@@ -8,37 +11,45 @@ public class Goal : BaseEntity
     /// <summary>
     /// Name of the financial goal
     /// </summary>
+    [Required]
+    [StringLength(100)]
     public string Name { get; set; } = string.Empty;
     
     /// <summary>
     /// Detailed description of the goal
     /// </summary>
-    public string Description { get; set; } = string.Empty;
+    [StringLength(500)]
+    public string? Description { get; set; }
     
     /// <summary>
     /// Target amount to achieve
     /// </summary>
+    [Required]
+    [Range(0.01, double.MaxValue, ErrorMessage = "Target amount must be greater than 0")]
     public decimal TargetAmount { get; set; }
     
     /// <summary>
     /// Current amount saved towards the goal
     /// </summary>
-    public decimal CurrentAmount { get; set; }
+    public decimal CurrentAmount { get; set; } = 0;
     
     /// <summary>
     /// Target date to achieve the goal
     /// </summary>
+    [Required]
     public DateTime TargetDate { get; set; }
     
     /// <summary>
     /// Priority level of the goal (1 = highest, 5 = lowest)
     /// </summary>
+    [Range(1, 5)]
     public int Priority { get; set; } = 3;
     
     /// <summary>
-    /// Category or type of the goal (e.g., "Emergency Fund", "Vacation", "Car")
+    /// Type of the goal (Savings, DebtPayoff, Investment, etc.)
     /// </summary>
-    public string Category { get; set; } = string.Empty;
+    [Required]
+    public GoalType Type { get; set; }
     
     /// <summary>
     /// Color associated with the goal for visual representation
@@ -56,9 +67,34 @@ public class Goal : BaseEntity
     public DateTime? CompletedDate { get; set; }
     
     /// <summary>
+    /// Account linked to this goal for automatic progress tracking
+    /// </summary>
+    public int? LinkedAccountId { get; set; }
+    
+    // Navigation properties
+    
+    /// <summary>
+    /// Navigation property to the linked account
+    /// </summary>
+    public virtual Account? LinkedAccount { get; set; }
+    
+    /// <summary>
     /// Collection of milestones for this goal
     /// </summary>
-    public List<GoalMilestone> Milestones { get; set; } = new();
+    public virtual ICollection<GoalMilestone> Milestones { get; set; } = new List<GoalMilestone>();
+    
+    /// <summary>
+    /// Constructor that initializes default values
+    /// </summary>
+    public Goal()
+    {
+        Type = GoalType.Savings;
+        Priority = 3;
+        Color = "#3B82F6";
+        IsCompleted = false;
+        CurrentAmount = 0;
+        TargetDate = DateTime.Today.AddYears(1);
+    }
     
     /// <summary>
     /// Calculates the progress percentage towards the goal
@@ -135,6 +171,33 @@ public class Goal : BaseEntity
         Milestones.Add(milestone);
         MarkAsModified();
     }
+    
+    /// <summary>
+    /// Validates the goal data
+    /// </summary>
+    public bool IsValid()
+    {
+        if (string.IsNullOrWhiteSpace(Name)) return false;
+        if (TargetAmount <= 0) return false;
+        if (CurrentAmount < 0) return false;
+        if (TargetDate <= DateTime.Today) return false;
+        if (Priority < 1 || Priority > 5) return false;
+        if (!string.IsNullOrEmpty(Color) && !IsValidHexColor(Color)) return false;
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// Validates if a string is a valid hex color
+    /// </summary>
+    private static bool IsValidHexColor(string color)
+    {
+        if (string.IsNullOrEmpty(color)) return false;
+        if (!color.StartsWith("#")) return false;
+        if (color.Length != 7) return false;
+        
+        return color[1..].All(c => char.IsDigit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'));
+    }
 }
 
 /// <summary>
@@ -161,6 +224,16 @@ public class GoalMilestone : BaseEntity
     /// Target amount for this milestone
     /// </summary>
     public decimal TargetAmount { get; set; }
+    
+    /// <summary>
+    /// Target date for achieving this milestone
+    /// </summary>
+    public DateTime? TargetDate { get; set; }
+    
+    /// <summary>
+    /// Sort order for displaying milestones
+    /// </summary>
+    public int SortOrder { get; set; }
     
     /// <summary>
     /// Whether this milestone has been achieved

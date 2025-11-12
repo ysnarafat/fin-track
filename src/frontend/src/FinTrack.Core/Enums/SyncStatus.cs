@@ -33,5 +33,10 @@ public enum SyncStatus
     /// <summary>
     /// Entity has a sync conflict that needs to be resolved
     /// </summary>
-    Conflict = 5
+    Conflict = 5,
+    
+    /// <summary>
+    /// Entity is marked for hard delete (internal use only)
+    /// </summary>
+    HardDelete = 6
 }

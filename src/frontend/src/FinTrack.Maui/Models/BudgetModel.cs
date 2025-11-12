@@ -5,7 +5,7 @@ namespace FinTrack.Maui.Models;
 /// <summary>
 /// Budget model for UI display and data binding
 /// </summary>
-public class Budget
+public class BudgetModel
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;

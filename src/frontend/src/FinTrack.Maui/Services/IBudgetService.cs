@@ -10,27 +10,27 @@ public interface IBudgetService
     /// <summary>
     /// Gets all active budgets
     /// </summary>
-    Task<IEnumerable<Budget>> GetBudgetsAsync();
+    Task<IEnumerable<BudgetModel>> GetBudgetsAsync();
     
     /// <summary>
     /// Gets budgets for the current month
     /// </summary>
-    Task<IEnumerable<Budget>> GetCurrentMonthBudgetsAsync();
+    Task<IEnumerable<BudgetModel>> GetCurrentMonthBudgetsAsync();
     
     /// <summary>
     /// Gets a specific budget by ID
     /// </summary>
-    Task<Budget?> GetBudgetAsync(int id);
+    Task<BudgetModel?> GetBudgetAsync(int id);
     
     /// <summary>
     /// Creates a new budget
     /// </summary>
-    Task<Budget> CreateBudgetAsync(Budget budget);
+    Task<BudgetModel> CreateBudgetAsync(BudgetModel budget);
     
     /// <summary>
     /// Updates an existing budget
     /// </summary>
-    Task<Budget> UpdateBudgetAsync(Budget budget);
+    Task<BudgetModel> UpdateBudgetAsync(BudgetModel budget);
     
     /// <summary>
     /// Deletes a budget

@@ -9,7 +9,7 @@ namespace FinTrack.Maui.Services;
 public class BudgetService : IBudgetService
 {
     // Mock data for demonstration - in real implementation, this would use repositories
-    private readonly List<Budget> _budgets;
+    private readonly List<BudgetModel> _budgets;
     private readonly List<CategoryOption> _categories;
     
     public BudgetService()
@@ -31,9 +31,9 @@ public class BudgetService : IBudgetService
         var startOfMonth = new DateTime(currentMonth.Year, currentMonth.Month, 1);
         var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
         
-        _budgets = new List<Budget>
+        _budgets = new List<BudgetModel>
         {
-            new()
+            new BudgetModel
             {
                 Id = 1,
                 Name = "Monthly Groceries",
@@ -46,7 +46,7 @@ public class BudgetService : IBudgetService
                 EndDate = endOfMonth,
                 IsActive = true
             },
-            new()
+            new BudgetModel
             {
                 Id = 2,
                 Name = "Transportation Budget",
@@ -59,7 +59,7 @@ public class BudgetService : IBudgetService
                 EndDate = endOfMonth,
                 IsActive = true
             },
-            new()
+            new BudgetModel
             {
                 Id = 3,
                 Name = "Entertainment",
@@ -72,7 +72,7 @@ public class BudgetService : IBudgetService
                 EndDate = endOfMonth,
                 IsActive = true
             },
-            new()
+            new BudgetModel
             {
                 Id = 4,
                 Name = "Dining Out",
@@ -98,26 +98,26 @@ public class BudgetService : IBudgetService
         }
     }
     
-    public async Task<IEnumerable<Budget>> GetBudgetsAsync()
+    public async Task<IEnumerable<BudgetModel>> GetBudgetsAsync()
     {
         await Task.Delay(100); // Simulate async operation
         return _budgets.Where(b => b.IsActive).OrderBy(b => b.CategoryName);
     }
     
-    public async Task<IEnumerable<Budget>> GetCurrentMonthBudgetsAsync()
+    public async Task<IEnumerable<BudgetModel>> GetCurrentMonthBudgetsAsync()
     {
         await Task.Delay(100);
         var now = DateTime.Today;
         return _budgets.Where(b => b.IsActive && b.IsCurrentPeriod).OrderBy(b => b.CategoryName);
     }
     
-    public async Task<Budget?> GetBudgetAsync(int id)
+    public async Task<BudgetModel?> GetBudgetAsync(int id)
     {
         await Task.Delay(50);
         return _budgets.FirstOrDefault(b => b.Id == id && b.IsActive);
     }
     
-    public async Task<Budget> CreateBudgetAsync(Budget budget)
+    public async Task<BudgetModel> CreateBudgetAsync(BudgetModel budget)
     {
         await Task.Delay(100);
         
@@ -138,7 +138,7 @@ public class BudgetService : IBudgetService
         return budget;
     }
     
-    public async Task<Budget> UpdateBudgetAsync(Budget budget)
+    public async Task<BudgetModel> UpdateBudgetAsync(BudgetModel budget)
     {
         await Task.Delay(100);
         
