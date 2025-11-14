@@ -182,8 +182,11 @@ public class GoalMilestone : BaseEntity
     /// </summary>
     public void MarkAsAchieved()
     {
-        IsAchieved = true;
-        AchievedDate = DateTime.UtcNow;
-        MarkAsModified();
+        if (!IsAchieved)
+        {
+            IsAchieved = true;
+            AchievedDate = DateTime.UtcNow;
+            MarkAsModified();
+        }
     }
 }

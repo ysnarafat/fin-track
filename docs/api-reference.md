@@ -190,7 +190,7 @@ public class SyncService
 
 ### IRepository<T>
 
-Generic repository interface for basic CRUD operations with sync support.
+Generic repository interface for basic CRUD operations with sync support. This interface is comprehensively tested through the `IRepositoryTests` class to ensure consistent behavior across all implementations.
 
 #### Interface Definition
 ```csharp
@@ -200,20 +200,58 @@ public interface IRepository<T> where T : BaseEntity
     Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<T?> GetBySyncIdAsync(string syncId, CancellationToken cancellationToken = default);
     Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> GetWhereAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<T?> GetSingleAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
     Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> UpdateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
-    
-    // Sync-related operations
-    Task<IEnumerable<T>> GetPendingSyncAsync(CancellationToken cancellationToken = default);
-    Task<IEnumerable<T>> GetBySyncStatusAsync(SyncStatus syncStatus, CancellationToken cancellationToken = default);
-    Task<int> MarkAsSyncedAsync(IEnumerable<string> syncIds, CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync(T entity, CancellationToken cancellationToken = default);
+    Task<bool> HardDeleteAsync(int id, CancellationToken cancellationToken = default);
     
     // Query operations
     Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
-    Task<IEnumerable<T>> GetPagedAsync(int skip, int take, Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> GetPagedAsync(int skip, int take, Expression<Func<T, bool>>? predicate = null, Expression<Func<T, object>>? orderBy = null, CancellationToken cancellationToken = default);
+    
+    // Sync-related operations
+    Task<IEnumerable<T>> GetPendingSyncAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> GetBySyncStatusAsync(SyncStatus syncStatus, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> GetModifiedAfterAsync(DateTime timestamp, CancellationToken cancellationToken = default);
+    Task<int> MarkAsSyncedAsync(IEnumerable<string> syncIds, CancellationToken cancellationToken = default);
+    Task<int> MarkAsConflictedAsync(IEnumerable<string> syncIds, CancellationToken cancellationToken = default);
 }
+```
+
+#### Contract Testing
+
+The `IRepository<T>` interface is thoroughly tested through the `IRepositoryTests` class, which provides 22 comprehensive test methods covering:
+
+**CRUD Operations (9 tests):**
+- Entity retrieval by ID and sync ID
+- Entity creation (single and bulk)
+- Entity updates (single and bulk)
+- Entity deletion (soft and hard delete)
+
+**Query Operations (6 tests):**
+- Filtered queries with predicates
+- Single entity retrieval
+- Count operations with and without filters
+- Existence checking
+- Paginated queries with ordering
+
+**Sync Operations (5 tests):**
+- Pending sync entity retrieval
+- Sync status filtering
+- Modified entity queries by timestamp
+- Sync status marking operations
+
+**Bulk Operations (2 tests):**
+- Batch entity creation
+- Batch entity updates
+
+This comprehensive test suite ensures that all repository implementations maintain consistent behavior and contract compliance across the application.
 ```
 
 ## Enums

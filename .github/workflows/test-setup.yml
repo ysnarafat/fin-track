@@ -20,7 +20,7 @@ jobs:
           dotnet --info
         else
           echo "❌ dotnet command not found"
-          echo "Please install .NET 8.0 SDK on your runner"
+          echo "Please install .NET 10.0 LTS SDK on your runner"
           exit 1
         fi
         
@@ -66,6 +66,6 @@ jobs:
         echo "🎉 Runner setup test completed successfully!"
         echo ""
         echo "Your Linux runner is ready for:"
-        echo "- .NET 8.0 development"
+        echo "- .NET 10.0 LTS development"
         echo "- Global tool installation"
         echo "- Project building and testing"
