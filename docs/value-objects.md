@@ -271,12 +271,44 @@ Value objects are thoroughly tested to ensure correctness and reliability:
 - Consider caching for frequently used values
 - Profile memory usage in performance-critical paths
 
+## Current Goal Implementation
+
+The Goal entity currently implements progress tracking through direct properties rather than a separate value object:
+
+```csharp
+public class Goal : BaseEntity
+{
+    // Progress calculation properties
+    public decimal ProgressPercentage => TargetAmount > 0 ? Math.Min((CurrentAmount / TargetAmount) * 100, 100) : 0;
+    public decimal RemainingAmount => Math.Max(TargetAmount - CurrentAmount, 0);
+    public int DaysRemaining => Math.Max((TargetDate - DateTime.Now).Days, 0);
+    public bool IsOverdue => DateTime.Now > TargetDate && !IsCompleted;
+    
+    // Smart monthly savings calculation
+    public decimal RequiredMonthlySavings
+    {
+        get
+        {
+            if (IsCompleted || DaysRemaining <= 0) return 0;
+            var monthsRemaining = Math.Max(DaysRemaining / 30.0m, 1);
+            return RemainingAmount / monthsRemaining;
+        }
+    }
+}
+```
+
+This approach provides:
+- **Real-time Calculations**: Properties are calculated on-demand
+- **Edge Case Handling**: Proper handling of completed and overdue goals
+- **Business Logic Integration**: Direct integration with entity state
+- **Performance**: No additional object allocation for simple calculations
+
 ## Future Enhancements
 
 Potential future value objects for FinTrack:
 
 - **AccountNumber**: Bank account number validation and formatting
 - **CategoryPath**: Hierarchical category path representation
-- **GoalProgress**: Goal completion percentage and milestone tracking
 - **ExchangeRate**: Currency conversion rates with timestamps
 - **RecurrencePattern**: Recurring transaction patterns and schedules
+- **GoalProgress**: Could be considered if more complex progress tracking is needed (currently handled by Goal entity properties)

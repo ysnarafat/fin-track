@@ -226,32 +226,34 @@ The XAML UI adapts to different platforms:
 - **Performance Testing**: UI responsiveness and memory usage
 - **ViewModel Testing**: Command execution and property change notification
 
-### Sync Testing Infrastructure
+### Test Data Infrastructure
 
-The sync testing infrastructure provides specialized utilities for testing synchronization scenarios:
+The test infrastructure provides comprehensive utilities for creating test data:
 
 ```csharp
-// SyncTestHelpers provides type-safe test object creation
-public static class SyncTestHelpers
+// TestDataBuilder provides fluent API for entity creation
+public static class TestDataBuilder
 {
-    // Creates sync state change events using actual Core interfaces
-    public static SyncStateChangedEventArgs CreateSyncStateChangedEventArgs(
-        SyncState previousState, 
-        SyncState currentState,
-        string? errorMessage = null);
-    
-    // Creates sync conflicts for resolution testing
-    public static SyncConflict CreateSyncConflict(
-        string id, string entityType, string entityId,
-        string localData, string remoteData);
+    public static TransactionBuilder Transaction() => new TransactionBuilder();
+    public static AccountBuilder Account() => new AccountBuilder();
+    public static CategoryBuilder Category() => new CategoryBuilder();
+    public static GoalBuilder Goal() => new GoalBuilder();
+}
+
+// TestScenarios provides pre-configured common scenarios
+public static class TestScenarios
+{
+    public static Account TypicalCheckingAccount();
+    public static Transaction TypicalExpenseTransaction();
+    public static Goal EmergencyFundGoal();
 }
 ```
 
 **Key Benefits:**
-- **Type Safety**: Uses actual `FinTrack.Core.Interfaces` types, not test duplicates
-- **Interface Consistency**: Test objects automatically match production contracts
-- **Maintainability**: Core interface changes propagate to tests via compilation
-- **Convenience**: Simplifies complex sync scenario setup in tests
+- **Fluent API**: Chainable methods for readable test setup
+- **Type Safety**: Uses actual `FinTrack.Core.Entities` types
+- **Reusability**: Common scenarios reduce test code duplication
+- **Maintainability**: Entity changes automatically propagate to tests
 
 ### Test Architecture Benefits
 - **Fast Unit Tests**: No UI dependencies means faster test execution
