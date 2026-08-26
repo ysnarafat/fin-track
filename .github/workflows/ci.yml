@@ -4,7 +4,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop, 'topic/**' ]
+    branches: [ main, develop ]
     paths:
       - 'src/frontend/**'
       - '.github/workflows/**'
@@ -16,7 +16,7 @@ on:
 
 env:
   # Only build projects that work on Linux (exclude MAUI)
-  # All projects target .NET 9.0 to match runner installation
+  # All projects target .NET 10.0 to match runner installation
   CORE_PROJECT: 'src/frontend/src/FinTrack.Core/FinTrack.Core.csproj'
   SHARED_PROJECT: 'src/frontend/src/FinTrack.Shared/FinTrack.Shared.csproj'
   INFRASTRUCTURE_PROJECT: 'src/frontend/src/FinTrack.Infrastructure/FinTrack.Infrastructure.csproj'
@@ -30,6 +30,13 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: '10.0.x'
+      env:
+        DOTNET_INSTALL_DIR: ${{ runner.tool_cache }}/dotnet
 
     - name: Verify .NET installation
       run: |

@@ -17,6 +17,7 @@ Welcome to the FinTrack documentation. This section provides comprehensive infor
 - [Sync Architecture](sync-architecture.md) - Detailed synchronization system documentation
 - [Testing Strategy](testing-strategy.md) - Comprehensive testing approach and utilities
 - [Value Objects](value-objects.md) - Domain value objects (Money, DateRange, SyncMetadata)
+- [Known Issues](known-issues.md) - Current issues and their resolutions
 
 ### Architecture Documentation
 
@@ -145,7 +146,7 @@ public interface IConnectivityService
 ## 🧪 Testing Strategy
 
 ### Test Coverage
-- **Unit Tests** - Domain logic, services, and repositories
+- **Unit Tests** - Domain logic, services, and repositories with fluent test builders
 - **Integration Tests** - Database operations and sync functionality  
 - **UI Tests** - XAML navigation and user interactions
 - **Platform Tests** - Platform-specific service implementations
@@ -153,7 +154,10 @@ public interface IConnectivityService
 ### Test Organization
 ```
 tests/
-├── FinTrack.Tests.Unit/       # Isolated unit tests
+├── FinTrack.Tests.Unit/       # Fast unit tests with TestDataBuilder utilities
+│   ├── Helpers/               # TestDataBuilder and TestScenarios
+│   ├── Domain/                # Entity and business logic tests
+│   └── Services/              # Application service tests
 └── FinTrack.Tests.Integration/ # Database and API integration tests
 ```
 

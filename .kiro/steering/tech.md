@@ -2,7 +2,7 @@
 
 ## Core Technologies
 
-- **.NET 8.0** - Target framework for all projects
+- **.NET 10.0 LTS** - Target framework for all projects
 - **.NET MAUI** - Cross-platform UI framework with XAML
 - **Entity Framework Core** - Data access with SQLite provider
 - **SQLite** - Local database for offline-first functionality
@@ -38,7 +38,7 @@ src/
 
 ### Prerequisites
 ```bash
-# Install .NET 8.0 SDK
+# Install .NET 10.0 LTS SDK
 # Install MAUI workloads
 dotnet workload install maui
 ```
@@ -49,10 +49,10 @@ dotnet workload install maui
 dotnet build src/frontend/FinTrack.sln
 
 # Build for specific platforms
-dotnet build -f net8.0-android
-dotnet build -f net8.0-ios
-dotnet build -f net8.0-maccatalyst
-dotnet build -f net8.0-windows10.0.19041.0
+dotnet build -f net10.0-android
+dotnet build -f net10.0-ios
+dotnet build -f net10.0-maccatalyst
+dotnet build -f net10.0-windows10.0.19041.0
 
 # Run tests
 dotnet test src/frontend/tests/
@@ -67,18 +67,18 @@ dotnet restore src/frontend/FinTrack.sln
 ### Development Workflow
 ```bash
 # Run on Android emulator
-dotnet build -t:Run -f net8.0-android
+dotnet build -t:Run -f net10.0-android
 
 # Run on iOS simulator (macOS only)
-dotnet build -t:Run -f net8.0-ios
+dotnet build -t:Run -f net10.0-ios
 
 # Run on Windows
-dotnet run --project src/frontend/src/FinTrack.Maui -f net8.0-windows10.0.19041.0
+dotnet run --project src/frontend/src/FinTrack.Maui -f net10.0-windows10.0.19041.0
 ```
 
 ## Code Style & Conventions
 
-- **C# 12** language features preferred
+- **C# 13** language features preferred
 - **Async/await** for all I/O operations
 - **CancellationToken** parameters for async methods
 - **Nullable reference types** enabled
